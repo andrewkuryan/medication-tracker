@@ -1,0 +1,26 @@
+{
+  "name": "medication-tracker-mobile",
+  "version": "1.0.0",
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-native": "0.74.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@babel/preset-env": "^7.20.0",
+    "@babel/runtime": "^7.20.0",
+    "@react-native/babel-preset": "0.74.85",
+    "@react-native/metro-config": "0.74.85",
+    "@react-native/typescript-config": "0.74.85",
+    "@types/react": "^18.2.6",
+    "eslint-plugin-react": "^7.34.3",
+    "eslint-plugin-react-native": "^4.1.0",
+    "react-test-renderer": "18.2.0"
+  }
+}

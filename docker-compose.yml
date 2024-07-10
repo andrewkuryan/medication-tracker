@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  postgresql:
+    image: postgres:latest
+    container_name: postgresql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "8001:5432"
+    volumes:
+      - ~/.pg-data/testTask:/var/lib/postgresql/data
