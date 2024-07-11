@@ -5,7 +5,10 @@
     "strict": true,
     "esModuleInterop": true,
     "baseUrl": "./",
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@db/*": ["./db/*"]
+    }
   },
   "exclude": ["node_modules"]
 }
