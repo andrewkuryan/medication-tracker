@@ -1,3 +1,4 @@
+import { InsertSchemaType } from './SchemaType';
 import { Column, ColumnType, Schema } from './Schema';
 
 function formatColumnType(columnType: ColumnType): string {
@@ -9,7 +10,7 @@ function formatColumnType(columnType: ColumnType): string {
   }
 }
 
-function createColumnQuery(name: string, column: Column) {
+function createColumnQuery(name: string, column: Column<boolean>) {
   return `${name} ${formatColumnType(column.type)}${('options' in column && column.options) ? ` ${column.options}` : ''}`;
 }
 
@@ -20,4 +21,10 @@ export function createTableQuery(schema: Schema) {
 
 export function dropTableQuery(schema: Schema) {
   return `DROP TABLE ${schema.tableName}`;
+}
+
+export function insertQuery<S extends Schema>(schema: S, data: InsertSchemaType<S>) {
+  const columnNames = Object.keys(data).join(', ');
+  const columnValues = Object.values(data).map((value) => `'${value}'`).join(', ');
+  return `INSERT INTO ${schema.tableName} (${columnNames}) VALUES (${columnValues}) RETURNING *`;
 }

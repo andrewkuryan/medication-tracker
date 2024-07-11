@@ -25,12 +25,13 @@ export type ColumnType = typeof Serial |
     ReturnType<typeof TextType> |
     ReturnType<typeof DateType>;
 
-export interface Column {
+export interface Column<D extends boolean> {
     type: ColumnType,
-    options?: string
+    options?: string,
+    default?: D,
 }
 
 export interface Schema {
     tableName: string;
-    columns: { [key: string]: Column }
+    columns: { [key: string]: Column<boolean> }
 }
