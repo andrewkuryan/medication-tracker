@@ -16,14 +16,16 @@ const rollbacks = [
 ];
 
 async function migrate() {
-  for (const migrate of migrations) {
-    await migrate();
+  for (let i = 0; i < migrations.length; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await migrations[i]();
   }
 }
 
 async function migrateUndo() {
-  for (const rollback of rollbacks) {
-    await rollback();
+  for (let i = 0; i < rollbacks.length; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await rollbacks[i]();
   }
 }
 
@@ -31,13 +33,16 @@ async function migrateUndo() {
   switch (process.argv[2]) {
     case 'migrate':
       await migrate();
+      // eslint-disable-next-line no-console
       console.log('Executed successfully: migrate');
       break;
     case 'migrate:undo':
       await migrateUndo();
+      // eslint-disable-next-line no-console
       console.log('Executed successfully: migrate:undo');
       break;
     default:
+      // eslint-disable-next-line no-console
       console.log(HELP_MESSAGE);
   }
   process.exit(0);

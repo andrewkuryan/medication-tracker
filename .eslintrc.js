@@ -11,4 +11,17 @@ module.exports = {
     'plugin:import/recommended',
     'plugin:import/typescript',
   ],
+  rules: {
+    'import/extensions': [
+      'warn',
+      { ts: 'never' },
+    ],
+  },
+  settings: {
+    'import/resolver': {
+      typescript: {
+        alwaysTryTypes: true,
+      },
+    },
+  },
 };
