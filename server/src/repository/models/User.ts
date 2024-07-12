@@ -19,7 +19,9 @@ export interface User {
 }
 
 export interface SessionData {
-    kHex: string;
+    key: string;
+    serverPublicKeyHex: string;
+    clientPublicKeyHex: string;
     clientName: string;
     verified: boolean;
 }

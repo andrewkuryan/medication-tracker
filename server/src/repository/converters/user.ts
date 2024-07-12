@@ -44,7 +44,9 @@ export function dbSessionToSession(session: DBSession): Session {
   return {
     id: session.id,
     data: {
-      kHex: session.k_hex,
+      key: session.key,
+      serverPublicKeyHex: session.server_public_key_hex,
+      clientPublicKeyHex: session.client_public_key_hex,
       clientName: session.client_name,
       verified: session.verified,
     },
@@ -54,7 +56,9 @@ export function dbSessionToSession(session: DBSession): Session {
 export function sessionToDBSession(userId: number, sessionData: SessionData): DBSessionInsert {
   return {
     user_id: userId,
-    k_hex: sessionData.kHex,
+    key: sessionData.key,
+    server_public_key_hex: sessionData.serverPublicKeyHex,
+    client_public_key_hex: sessionData.clientPublicKeyHex,
     client_name: sessionData.clientName,
     verified: sessionData.verified,
   };

@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es6",
+    "target": "esnext",
     "strict": true,
     "esModuleInterop": true,
     "baseUrl": "./",
     "types": ["node"],
     "paths": {
+      "@common/*": ["../common/src/*"],
       "@db/*": ["src/db/*"],
       "@repository/*": ["src/repository/*"]
     }

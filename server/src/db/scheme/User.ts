@@ -26,7 +26,9 @@ export const sessionSchema = {
   columns: {
     id: { type: Serial, options: 'PRIMARY KEY', default: true },
     user_id: { type: Integer(), options: `REFERENCES ${userSchema.tableName} (id)` },
-    k_hex: { type: Varchar(1024) },
+    key: { type: Varchar(1024) },
+    server_public_key_hex: { type: Varchar(1024) },
+    client_public_key_hex: { type: Varchar(1024) },
     client_name: { type: Varchar(255) },
     verified: { type: BooleanType(), options: 'DEFAULT FALSE', default: true },
   },

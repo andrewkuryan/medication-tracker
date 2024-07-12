@@ -1,0 +1,11 @@
+{
+  "name": "medication-tracker-common",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
