@@ -17,6 +17,7 @@ module.exports = {
       { ts: 'never' },
     ],
     'import/no-extraneous-dependencies': 'off',
+    'max-classes-per-file': 'off',
   },
   settings: {
     'import/resolver': {
