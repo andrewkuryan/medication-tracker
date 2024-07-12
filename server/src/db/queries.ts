@@ -1,3 +1,5 @@
+import { escapeLiteral } from 'pg';
+
 import { InsertSchemaType, SchemaType } from './SchemaType';
 import { Column, ColumnType, Schema } from './Schema';
 import { JoinQuery, formatJoin } from './join';
@@ -27,7 +29,7 @@ export function dropTableQuery(schema: Schema) {
 
 export function insertQuery<S extends Schema>(schema: S, data: InsertSchemaType<S>) {
   const columnNames = Object.keys(data).join(', ');
-  const columnValues = Object.values(data).map((value) => `'${value}'`).join(', ');
+  const columnValues = Object.values(data).map((value) => escapeLiteral(`${value}`)).join(', ');
   return `INSERT INTO ${schema.tableName} (${columnNames}) VALUES (${columnValues}) RETURNING *`;
 }
 
@@ -36,7 +38,7 @@ export function updateQuery<S extends Schema>(
   data: Partial<SchemaType<S>>,
   where?: WhereExp<S>,
 ) {
-  const columns = Object.entries(data).map(([key, value]) => `${key} = '${value}'`).join(', ');
+  const columns = Object.entries(data).map(([key, value]) => `${key} = ${escapeLiteral(`${value}`)}`).join(', ');
   const whereString = where ? formatWhereQuery(where) : '';
   return `UPDATE ${schema.tableName} SET ${columns}${whereString ? ` ${whereString}` : ''} RETURNING *`;
 }

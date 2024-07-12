@@ -1,3 +1,5 @@
+import { escapeLiteral } from 'pg';
+
 import { Schema } from './Schema';
 import { FieldType } from './SchemaType';
 
@@ -24,7 +26,7 @@ export function eq<S extends Schema, K extends keyof S['columns']>(column: K, va
 }
 
 function formatWhereCondition<S extends Schema, K extends keyof S['columns']>(cond: WhereCondition<S, K>) {
-  return `${String(cond.column)} ${cond.operator} '${cond.value}'`;
+  return `${String(cond.column)} ${cond.operator} ${escapeLiteral(`${cond.value}`)}`;
 }
 
 function formatWhereExp<S extends Schema>(exp: WhereExp<S>): string {
