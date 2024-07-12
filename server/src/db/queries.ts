@@ -1,5 +1,7 @@
-import { InsertSchemaType } from './SchemaType';
+import { InsertSchemaType, SchemaType } from './SchemaType';
 import { Column, ColumnType, Schema } from './Schema';
+import { JoinQuery, formatJoin } from './join';
+import { formatWhereQuery, WhereExp } from './where';
 
 function formatColumnType(columnType: ColumnType): string {
   switch (columnType.name) {
@@ -27,4 +29,25 @@ export function insertQuery<S extends Schema>(schema: S, data: InsertSchemaType<
   const columnNames = Object.keys(data).join(', ');
   const columnValues = Object.values(data).map((value) => `'${value}'`).join(', ');
   return `INSERT INTO ${schema.tableName} (${columnNames}) VALUES (${columnValues}) RETURNING *`;
+}
+
+export function updateQuery<S extends Schema>(
+  schema: S,
+  data: Partial<SchemaType<S>>,
+  where?: WhereExp<S>,
+) {
+  const columns = Object.entries(data).map(([key, value]) => `${key} = '${value}'`).join(', ');
+  const whereString = where ? formatWhereQuery(where) : '';
+  return `UPDATE ${schema.tableName} SET ${columns}${whereString ? ` ${whereString}` : ''} RETURNING *`;
+}
+
+interface SelectOptions<S extends Schema> {
+    where?: WhereExp<S>,
+    join?: JoinQuery<S>[]
+}
+
+export function selectQuery<S extends Schema>(schema: S, options?: SelectOptions<S>) {
+  const joinString = options?.join ? options.join.map((it) => formatJoin(schema, it)).join(' ') : '';
+  const whereString = options?.where ? formatWhereQuery(options.where) : '';
+  return `SELECT * FROM ${schema.tableName}${joinString ? ` ${joinString}` : ''}${whereString ? ` ${whereString}` : ''}`;
 }

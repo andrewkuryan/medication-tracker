@@ -1,5 +1,5 @@
 import {
-  ColumnType, DateType, Integer, Real, Schema, Serial, TextType, Varchar,
+  ColumnType, DateType, Integer, Real, Schema, Serial, TextType, Varchar, BooleanType,
 } from './Schema';
 
 type IsNullable<T, N extends boolean> = N extends false ? T : (T | null);
@@ -11,9 +11,10 @@ type BaseType<C extends ColumnType> =
     C['name'] extends ReturnType<typeof Varchar>['name'] ? string :
     C['name'] extends ReturnType<typeof TextType>['name'] ? string :
     C['name'] extends ReturnType<typeof DateType>['name'] ? Date :
+    C['name'] extends ReturnType<typeof BooleanType>['name'] ? boolean :
     never;
 
-type FieldType<C extends ColumnType> = IsNullable<BaseType<C>, C['nullable']>
+export type FieldType<C extends ColumnType> = IsNullable<BaseType<C>, C['nullable']>
 
 export type SchemaType<S extends Schema> = {
     [key in keyof S['columns']]: FieldType<S['columns'][key]['type']>

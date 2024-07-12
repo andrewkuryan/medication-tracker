@@ -1,11 +1,13 @@
-import { Integer, Serial, Varchar } from '../Schema';
+import {
+  BooleanType, Integer, Serial, Varchar,
+} from '../Schema';
 import { InsertSchemaType, SchemaType } from '../SchemaType';
 
 export const userSchema = {
   tableName: 'users',
   columns: {
     id: { type: Serial, options: 'PRIMARY KEY', default: true },
-    email: { type: Varchar(255) },
+    email: { type: Varchar(255), options: 'UNIQUE' },
   },
 } as const;
 
@@ -26,6 +28,7 @@ export const sessionSchema = {
     user_id: { type: Integer(), options: `REFERENCES ${userSchema.tableName} (id)` },
     k_hex: { type: Varchar(1024) },
     client_name: { type: Varchar(255) },
+    verified: { type: BooleanType(), options: 'DEFAULT FALSE', default: true },
   },
 } as const;
 
