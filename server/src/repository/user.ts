@@ -8,7 +8,12 @@ import {
 import { eq } from '@db/where';
 import { leftJoin } from '@db/join';
 import {
-  credentialsToDBCredentials, dbSessionToSession, dbUserToUser, sessionToDBSession, userToDBUser,
+  credentialsToDBCredentials,
+  dbSessionJoinedToSession,
+  dbSessionToSession,
+  dbUserToUser,
+  sessionToDBSession,
+  userToDBUser,
 } from '@repository/converters/user';
 
 export async function createUser(
@@ -45,12 +50,21 @@ export async function createSession(user: User, data: SessionData) {
     sessionToDBSession(user.id, data),
   ));
 
-  return dbSessionToSession(result.rows[0]);
+  return dbSessionToSession(result.rows[0], user);
 }
 
 export async function getSession(sessionId: number): Promise<Session | null> {
   const dbClient = await getClient();
-  const result = await dbClient.query<DBSession>(selectQuery(sessionSchema, { where: eq('id', sessionId) }));
+  const result = await dbClient.query<DBSession & DBUser & DBUserCredentials>(selectQuery(
+    sessionSchema,
+    {
+      where: eq('id', sessionId),
+      join: [
+        leftJoin(userSchema, 'user_id', 'id'),
+        leftJoin(userCredentialsSchema, 'user_id', 'user_id'),
+      ],
+    },
+  ));
 
-  return result.rows[0] ? dbSessionToSession(result.rows[0]) : null;
+  return result.rows[0] ? dbSessionJoinedToSession(result.rows[0]) : null;
 }

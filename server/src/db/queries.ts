@@ -39,7 +39,7 @@ export function updateQuery<S extends Schema>(
   where?: WhereExp<S>,
 ) {
   const columns = Object.entries(data).map(([key, value]) => `${key} = ${escapeLiteral(`${value}`)}`).join(', ');
-  const whereString = where ? formatWhereQuery(where) : '';
+  const whereString = where ? formatWhereQuery(where, schema) : '';
   return `UPDATE ${schema.tableName} SET ${columns}${whereString ? ` ${whereString}` : ''} RETURNING *`;
 }
 
@@ -50,6 +50,6 @@ interface SelectOptions<S extends Schema> {
 
 export function selectQuery<S extends Schema>(schema: S, options?: SelectOptions<S>) {
   const joinString = options?.join ? options.join.map((it) => formatJoin(schema, it)).join(' ') : '';
-  const whereString = options?.where ? formatWhereQuery(options.where) : '';
+  const whereString = options?.where ? formatWhereQuery(options.where, schema) : '';
   return `SELECT * FROM ${schema.tableName}${joinString ? ` ${joinString}` : ''}${whereString ? ` ${whereString}` : ''}`;
 }

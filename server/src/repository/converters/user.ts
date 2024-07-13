@@ -41,7 +41,7 @@ export function userToDBUser(userData: UserData): DBUserInsert {
   return { email: userData.email };
 }
 
-export function dbSessionToSession(session: DBSession): Session {
+export function dbSessionJoinedToSession(session: DBSession & DBUser & DBUserCredentials): Session {
   return {
     id: session.id,
     data: {
@@ -49,6 +49,19 @@ export function dbSessionToSession(session: DBSession): Session {
       serverIdentity: session.server_identity,
       clientName: session.client_name,
     },
+    user: dbUserToUser(session),
+  };
+}
+
+export function dbSessionToSession(session: DBSession, user: User): Session {
+  return {
+    id: session.id,
+    data: {
+      clientIdentity: session.client_identity,
+      serverIdentity: session.server_identity,
+      clientName: session.client_name,
+    },
+    user,
   };
 }
 

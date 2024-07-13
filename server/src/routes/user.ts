@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import { Details } from 'express-useragent';
 import * as yup from 'yup';
 
-import { createSession, createUser, getUserByEmail } from '@repository/user';
+import { createUser, getUserByEmail } from '@repository/user';
 import { User } from '@common/models/shared/User';
-import { Session } from '@common/models/server/Session';
-import { NotFoundError } from './errors';
-import ServerSRPGenerator from '../utils/crypto/srp';
+import { NotFoundError } from './utils/errors';
+import { authMiddleware, buildSession } from './utils/auth';
 
 const router = Router();
 
@@ -36,40 +34,16 @@ function serializeLoginRes(salt: string, publicKey: bigint, sessionId: number) {
   return { salt, publicKeyHex: publicKey.toString(16), sessionId };
 }
 
-async function buildSession(
-  srpGenerator: ServerSRPGenerator,
-  user: User,
-  useragent: Details | undefined,
-  clientPublicKey: bigint,
-  serverPublicKey: bigint,
-  privateKey: bigint,
-): Promise<Session> {
-  const sessionKey = srpGenerator.computeSessionKey(
-    clientPublicKey,
-    BigInt(`0x${user.credentials.data.verifierHex}`),
-    privateKey,
-    serverPublicKey,
-  );
-
-  const expectedIdentity = srpGenerator.computeClientIdentity(
-    user.data.email,
-    user.credentials.data.salt,
-    clientPublicKey,
-    serverPublicKey,
-    sessionKey,
-  );
-  const identity = srpGenerator.computeServerIdentity(
-    clientPublicKey,
-    expectedIdentity,
-    sessionKey,
-  );
-
-  return createSession(user, {
-    clientIdentity: expectedIdentity,
-    serverIdentity: identity,
-    clientName: useragent?.platform ?? useragent?.source ?? 'Unknown',
-  });
-}
+router.get('/me', authMiddleware, async (req, res, next) => {
+  try {
+    if (!req.user) {
+      throw new NotFoundError('User', 'me');
+    }
+    res.send(req.user);
+  } catch (err: unknown) {
+    next(err);
+  }
+});
 
 router.post('/register', async (req, res, next) => {
   try {

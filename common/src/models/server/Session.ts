@@ -1,3 +1,5 @@
+import { User } from '../shared/User';
+
 export interface SessionData {
     clientIdentity: string;
     serverIdentity: string;
@@ -7,4 +9,5 @@ export interface SessionData {
 export interface Session {
     id: number;
     data: SessionData;
+    user: User;
 }

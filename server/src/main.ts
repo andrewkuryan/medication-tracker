@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 
 import SRPGenerator from './utils/crypto/srp';
 import userRoutes from './routes/user';
-import { ClientError } from './routes/errors';
+import { ClientError } from './routes/utils/errors';
 
 dotenv.config();
 dotenv.config({ path: path.resolve('..', '.env') });
@@ -55,7 +55,7 @@ const startServer = (app: Express) => {
     } else {
       res.status(500);
     }
-    res.json({ message: error.message });
+    res.send(error.message);
   });
 
   app.listen(port, () => {
