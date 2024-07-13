@@ -32,6 +32,7 @@ export default class BackendApi {
 
   private baseExpectedHeaders: ExpectedHeaders = {};
 
+  // eslint-disable-next-line no-useless-constructor, no-empty-function
   constructor(private readonly baseUrl: string) {}
 
   setBaseHeaders = (headers: Headers) => {
