@@ -1,5 +1,7 @@
+import { UserData, UserCredentialsData, User } from '@common/models/shared/User';
+import { Session, SessionData } from '@common/models/server/Session';
 import getClient from '@db/client';
-import { insertQuery, selectQuery, updateQuery } from '@db/queries';
+import { insertQuery, selectQuery } from '@db/queries';
 import {
   DBSession, DBUser, DBUserCredentials, sessionSchema, userCredentialsSchema, userSchema,
 } from '@db/scheme/User';
@@ -8,9 +10,6 @@ import { leftJoin } from '@db/join';
 import {
   credentialsToDBCredentials, dbSessionToSession, dbUserToUser, sessionToDBSession, userToDBUser,
 } from '@repository/converters/user';
-import {
-  Session, SessionData, User, UserCredentialsData, UserData,
-} from './models/User';
 
 export async function createUser(
   data: UserData,
@@ -54,11 +53,4 @@ export async function getSession(sessionId: number): Promise<Session | null> {
   const result = await dbClient.query<DBSession>(selectQuery(sessionSchema, { where: eq('id', sessionId) }));
 
   return result.rows[0] ? dbSessionToSession(result.rows[0]) : null;
-}
-
-export async function markSessionVerified(sessionId: number): Promise<Session> {
-  const dbClient = await getClient();
-  const result = await dbClient.query<DBSession>(updateQuery(sessionSchema, { verified: true }, eq('id', sessionId)));
-
-  return dbSessionToSession(result.rows[0]);
 }

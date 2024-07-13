@@ -17,16 +17,3 @@ export interface User {
     data: UserData;
     credentials: UserCredentials;
 }
-
-export interface SessionData {
-    key: string;
-    serverPublicKeyHex: string;
-    clientPublicKeyHex: string;
-    clientName: string;
-    verified: boolean;
-}
-
-export interface Session {
-    id: number;
-    data: SessionData;
-}

@@ -1,9 +1,10 @@
 import {
+  UserCredentialsData, UserData, User, UserCredentials,
+} from '@common/models/shared/User';
+import { Session, SessionData } from '@common/models/server/Session';
+import {
   DBSession, DBSessionInsert, DBUser, DBUserCredentials, DBUserCredentialsInsert, DBUserInsert,
 } from '@db/scheme/User';
-import {
-  Session, SessionData, User, UserCredentials, UserCredentialsData, UserData,
-} from '../models/User';
 
 export function dbCredentialsToCredentials(credentials: DBUserCredentials): UserCredentials {
   return {
@@ -44,11 +45,9 @@ export function dbSessionToSession(session: DBSession): Session {
   return {
     id: session.id,
     data: {
-      key: session.key,
-      serverPublicKeyHex: session.server_public_key_hex,
-      clientPublicKeyHex: session.client_public_key_hex,
+      clientIdentity: session.client_identity,
+      serverIdentity: session.server_identity,
       clientName: session.client_name,
-      verified: session.verified,
     },
   };
 }
@@ -56,10 +55,8 @@ export function dbSessionToSession(session: DBSession): Session {
 export function sessionToDBSession(userId: number, sessionData: SessionData): DBSessionInsert {
   return {
     user_id: userId,
-    key: sessionData.key,
-    server_public_key_hex: sessionData.serverPublicKeyHex,
-    client_public_key_hex: sessionData.clientPublicKeyHex,
+    client_identity: sessionData.clientIdentity,
+    server_identity: sessionData.serverIdentity,
     client_name: sessionData.clientName,
-    verified: sessionData.verified,
   };
 }
