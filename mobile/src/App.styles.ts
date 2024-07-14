@@ -1,13 +1,12 @@
 import { StyleSheet } from 'react-native';
 
+import Colors from '@components/Colors';
+
 const styles = StyleSheet.create({
   appRoot: {
-    alignItems: 'center',
+    backgroundColor: Colors.backgroundColor,
     flex: 1,
     justifyContent: 'center',
-  },
-  text: {
-    fontSize: 32,
   },
 });
 

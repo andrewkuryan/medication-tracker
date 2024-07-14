@@ -1,20 +1,30 @@
 import React from 'react';
-import { SafeAreaView, Text, useColorScheme } from 'react-native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { SafeAreaView } from 'react-native';
+import { Provider } from 'react-redux';
 
-import styles from './App.styles.ts';
+import SRPGenerator from './utils/crypto/srp';
+import BackendApi from './api/BackendApi';
+import createStore from './store/ReduxStore';
+import Login from './components/Login/Login';
+
+import styles from './App.styles';
+
+const srpGenerator = new SRPGenerator(
+  BigInt(process.env.SRP_N ?? 0),
+  BigInt(process.env.SRP_G ?? 2),
+);
+
+const api = new BackendApi(`${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`);
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const store = createStore(api, srpGenerator);
 
   return (
-    <SafeAreaView style={{ ...styles.appRoot, ...backgroundStyle }}>
-        <Text style={styles.text}>Medication Tracker</Text>
-    </SafeAreaView>
+    <Provider store={store}>
+        <SafeAreaView style={styles.appRoot}>
+            <Login/>
+        </SafeAreaView>
+    </Provider>
   );
 }
 

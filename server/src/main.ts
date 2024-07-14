@@ -16,7 +16,6 @@ dotenv.config();
 dotenv.config({ path: path.resolve('..', '.env') });
 
 const expressApp = express();
-const port = 8090;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace, no-shadow
@@ -58,9 +57,9 @@ const startServer = (app: Express) => {
     res.send(error.message);
   });
 
-  app.listen(port, () => {
+  app.listen(process.env.SERVER_PORT, () => {
     // eslint-disable-next-line no-console
-    console.log(`Server is listening on port ${port}`);
+    console.log(`Server is listening on port ${process.env.SERVER_PORT}`);
   });
 };
 
