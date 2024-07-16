@@ -10,7 +10,7 @@ type BaseType<C extends ColumnType> =
     C['name'] extends ReturnType<typeof Real>['name'] ? number :
     C['name'] extends ReturnType<typeof Varchar>['name'] ? string :
     C['name'] extends ReturnType<typeof TextType>['name'] ? string :
-    C['name'] extends ReturnType<typeof DateType>['name'] ? Date :
+    C['name'] extends ReturnType<typeof DateType>['name'] ? string :
     C['name'] extends ReturnType<typeof BooleanType>['name'] ? boolean :
     never;
 
