@@ -10,6 +10,7 @@ import dotenv from 'dotenv';
 
 import SRPGenerator from './utils/crypto/srp';
 import userRoutes from './routes/user';
+import medicationRoutes from './routes/medication';
 import { ClientError } from './routes/utils/errors';
 
 dotenv.config();
@@ -44,6 +45,7 @@ const startServer = (app: Express) => {
   });
 
   app.use('/users', userRoutes);
+  app.use('/medications', medicationRoutes);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
