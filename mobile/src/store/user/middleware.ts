@@ -6,9 +6,13 @@ import { actionMiddleware } from '../utils';
 // eslint-disable-next-line import/no-cycle
 import { requestWrap } from '../service/wrappers';
 // eslint-disable-next-line import/no-cycle
-import { fetch as fetchUser, fetchSuccess, registerSuccess } from './reducer';
+import {
+  fetch as fetchUser, fetchSuccess, logout, registerSuccess,
+} from './reducer';
 import { AppState } from '../ReduxStore';
-import { buildSession, setSessionHeaders, saveSession } from './session';
+import {
+  buildSession, setSessionHeaders, saveSession, removeSession, resetSessionHeaders,
+} from './session';
 import BackendApi from '../../api/BackendApi';
 import ClientSRPGenerator from '../../utils/crypto/srp';
 
@@ -98,6 +102,20 @@ const login = (api: BackendApi, srpGenerator: ClientSRPGenerator) => actionMiddl
   },
 );
 
+const logoutOnNotAuthorized = (api: BackendApi) => actionMiddleware(
+  'service',
+  'setError',
+  (storeApi, action) => {
+    if (action.payload.code === 401) {
+      removeSession().then(() => {
+        resetSessionHeaders(api);
+        storeApi.dispatch(logout());
+      });
+    }
+    return action;
+  },
+);
+
 const getUserMiddlewares = (api: BackendApi, srpGenerator: ClientSRPGenerator) => [
     // eslint-disable-next-line @typescript-eslint/ban-types
     fetchMiddleware(api) as Middleware<{}, AppState>,
@@ -105,6 +123,8 @@ const getUserMiddlewares = (api: BackendApi, srpGenerator: ClientSRPGenerator) =
     register(api, srpGenerator) as Middleware<{}, AppState>,
     // eslint-disable-next-line @typescript-eslint/ban-types
     login(api, srpGenerator) as Middleware<{}, AppState>,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    logoutOnNotAuthorized(api) as Middleware<{}, AppState>,
 ];
 
 export default getUserMiddlewares;

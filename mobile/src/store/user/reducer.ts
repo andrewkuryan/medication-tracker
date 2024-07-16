@@ -31,11 +31,15 @@ const userSlice = createSlice({
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     login(_, action: PayloadAction<LoginStartPayload>) {},
+    logout(state) {
+      // eslint-disable-next-line no-param-reassign
+      state.current = null;
+    },
   },
 });
 
 export const {
-  fetch, fetchSuccess, register, registerSuccess, login,
+  fetch, fetchSuccess, register, registerSuccess, login, logout,
 } = userSlice.actions;
 
 export type UserActionType = SliceActionType<typeof userSlice.actions>;

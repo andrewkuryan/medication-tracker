@@ -27,6 +27,12 @@ function buildFormData(body: Body): FormData {
   return formData;
 }
 
+export class ApiError extends Error {
+  constructor(message: string, readonly code: number) {
+    super(message);
+  }
+}
+
 export default class BackendApi {
   private baseHeaders: Headers = {};
 
@@ -36,11 +42,11 @@ export default class BackendApi {
   constructor(private readonly baseUrl: string) {}
 
   setBaseHeaders = (headers: Headers) => {
-    Object.assign(this.baseHeaders, headers);
+    this.baseHeaders = headers;
   };
 
   setBaseExpectedHeaders = (headers: ExpectedHeaders) => {
-    Object.assign(this.baseExpectedHeaders, headers);
+    this.baseExpectedHeaders = headers;
   };
 
   buildFullUrl = (url: string, query?: Query) => {
@@ -71,7 +77,7 @@ export default class BackendApi {
         return res;
       }
       const errorTest = await res.text();
-      throw new Error(errorTest);
+      throw new ApiError(errorTest, res.status);
     })
     .then((res) => {
       Object.entries(this.baseExpectedHeaders).forEach(([key, { value, errorMessage }]) => {

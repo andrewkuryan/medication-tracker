@@ -47,6 +47,15 @@ export function setSessionHeaders(api: BackendApi, session: Session) {
   });
 }
 
+export function resetSessionHeaders(api: BackendApi) {
+  api.setBaseHeaders({});
+  api.setBaseExpectedHeaders({});
+}
+
 export async function saveSession(session: Session) {
   await AsyncStorage.setItem('session', JSON.stringify(session));
+}
+
+export async function removeSession() {
+  await AsyncStorage.removeItem('session');
 }

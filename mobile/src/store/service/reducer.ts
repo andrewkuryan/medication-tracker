@@ -22,7 +22,7 @@ const serviceSlice = createSlice({
       // eslint-disable-next-line no-param-reassign
       state.isFetching = false;
     },
-    setError(state, action: PayloadAction<{ error: string }>) {
+    setError(state, action: PayloadAction<{ error: string, code: number | null }>) {
       // eslint-disable-next-line no-param-reassign
       state.error = action.payload.error;
     },
