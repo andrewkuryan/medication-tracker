@@ -18,12 +18,13 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   loginForm: {
+    paddingHorizontal: 40,
     rowGap: 30,
   },
   loginRoot: {
+    backgroundColor: Colors.backgroundColor,
     flex: 1,
     justifyContent: 'center',
-    padding: 40,
   },
   submitButton: {
     alignItems: 'center',
@@ -46,6 +47,7 @@ const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
     marginBottom: 40,
+    marginHorizontal: 40,
   },
   tabItem: {
     flex: 0.5,

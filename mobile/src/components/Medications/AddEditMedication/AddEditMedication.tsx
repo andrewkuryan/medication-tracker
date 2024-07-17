@@ -1,14 +1,18 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import {
   SafeAreaView, Text, TextInput, TouchableOpacity, View, ScrollView,
 } from 'react-native';
 import DatePicker from 'react-native-date-picker';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { calculateEndDate } from '@common/models/shared/Medication';
-import { AppDispatch } from '@store/ReduxStore';
-import { create as createMedication } from '@store/medication/reducer';
+import { calculateEndDate, Medication } from '@common/models/shared/Medication';
+import { AppDispatch, AppState } from '@store/ReduxStore';
+import { create as createMedication, update as updateMedication } from '@store/medication/reducer';
+import { ServiceState } from '@store/service/reducer';
 import { CreateStartPayload } from '@store/medication/middleware';
+// eslint-disable-next-line import/no-cycle
+import { MedicationsScreenProps } from '@components/Router.tsx';
+import usePrevious from '@components/hooks/usePrevious';
 import { isDefinedObject, parser, ParserConfig } from '@components/form/Parser';
 import { ErrorsObject, validator, ValidatorConfig } from '@components/form/Validator';
 
@@ -40,7 +44,7 @@ const parserConfig: ParserConfig<CreateStartPayload, AddEditForm> = {
   startDate: (value) => value ?? undefined,
 };
 
-const numberValidator = (value: number | undefined) => ((!value || Number.isNaN(value)) ? 'Should be a number' : undefined);
+const numberValidator = (value: number | undefined) => ((value === undefined || Number.isNaN(value)) ? 'Should be a number' : undefined);
 const frequencyValidator = validator({ amount: numberValidator, days: numberValidator });
 const countValidator = (
   value: number | undefined,
@@ -93,17 +97,23 @@ function formatDate(date: Date) {
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
-const AddEditMedication: FunctionComponent = () => {
+const AddEditMedication: FunctionComponent<MedicationsScreenProps<'AddEditMedication'>> = ({ navigation, route }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('1');
-  const [days, setDays] = useState('1');
-  const [count, setCount] = useState('0');
-  const [destinationCount, setDestinationCount] = useState('');
+  const medication = useSelector<AppState, Medication | undefined>((state) => (route.params.id
+    ? state.medication.medications[route.params.id] : undefined));
+  const serviceState = useSelector<AppState, ServiceState>((state) => state.service);
+
+  const prevIsFetching = usePrevious(serviceState.isFetching);
+
+  const [name, setName] = useState(medication?.data.name ?? '');
+  const [description, setDescription] = useState(medication?.data.description || '');
+  const [amount, setAmount] = useState(medication?.data.frequency.amount.toString() ?? '1');
+  const [days, setDays] = useState(medication?.data.frequency.days.toString() ?? '1');
+  const [count, setCount] = useState(medication?.data.count.toString() ?? '0');
+  const [destinationCount, setDestinationCount] = useState(medication?.data.destinationCount.toString() ?? '');
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
-  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(medication?.data.startDate ?? null);
 
   const endDate = useEndDate({
     startDate, count, destinationCount, frequency: { amount, days },
@@ -119,9 +129,19 @@ const AddEditMedication: FunctionComponent = () => {
     setErrors(validationResult);
 
     if (isDefinedObject(data) && Object.keys(validationResult).length === 0) {
-      dispatch(createMedication(data));
+      if (route.params.id) {
+        dispatch(updateMedication({ id: route.params.id, data }));
+      } else {
+        dispatch(createMedication(data));
+      }
     }
   };
+
+  useEffect(() => {
+    if (prevIsFetching === true && !serviceState.isFetching && serviceState.error === null) {
+      navigation.navigate('Medications');
+    }
+  }, [serviceState.isFetching]);
 
   return (
     <SafeAreaView style={Styles.addEditRoot}>
@@ -243,7 +263,7 @@ const AddEditMedication: FunctionComponent = () => {
                     </View>
                 </View>
                 <TouchableOpacity style={Styles.submitButton} onPress={handleSubmit}>
-                    <Text style={Styles.submitButtonText}>Create</Text>
+                    <Text style={Styles.submitButtonText}>{route.params.id ? 'Save' : 'Create'}</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>

@@ -7,7 +7,7 @@ import { actionMiddleware } from '../utils';
 import { requestWrap } from '../service/wrappers';
 import { AppState } from '../ReduxStore';
 // eslint-disable-next-line import/no-cycle
-import { createSuccess, fetchAllSuccess } from './reducer';
+import { createSuccess, fetchAllSuccess, updateSuccess } from './reducer';
 import BackendApi from '../../api/BackendApi';
 
 export type MedicationResponse = Omit<Medication, 'data'> & {
@@ -47,6 +47,24 @@ const create = (api: BackendApi) => actionMiddleware(
   },
 );
 
+export type UpdateStartPayload = { id: number; data: Omit<MedicationData, 'endDate'> };
+
+const update = (api: BackendApi) => actionMiddleware(
+  'medication',
+  'update',
+  (storeApi, action) => {
+    requestWrap(storeApi, async () => {
+      const result = await api.put<MedicationResponse>({
+        url: `/medications/${action.payload.id}`,
+        body: action.payload.data,
+      });
+
+      storeApi.dispatch(updateSuccess({ medication: parseMedication(result) }));
+    });
+    return action;
+  },
+);
+
 export interface FetchAllSuccessPayload {
     medications: Medication[];
 }
@@ -67,6 +85,8 @@ const fetchAll = (api: BackendApi) => actionMiddleware(
 const getMedicationMiddlewares = (api: BackendApi) => [
     // eslint-disable-next-line @typescript-eslint/ban-types
     create(api) as Middleware<{}, AppState>,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    update(api) as Middleware<{}, AppState>,
     // eslint-disable-next-line @typescript-eslint/ban-types
     fetchAll(api) as Middleware<{}, AppState>,
 ];

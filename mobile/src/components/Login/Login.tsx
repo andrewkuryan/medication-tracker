@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState } from 'react';
 import {
-  Text, TextInput, TouchableOpacity, View,
+  SafeAreaView, Text, TextInput, TouchableOpacity, View,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 
@@ -120,13 +120,13 @@ const Login: FunctionComponent = () => {
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
 
   return (
-    <View style={Styles.loginRoot}>
+    <SafeAreaView style={Styles.loginRoot}>
         <View style={Styles.tabBar}>
             <TabItem name="signIn" text="Sign In" currentSelected={mode} onPress={() => setMode('signIn')}/>
             <TabItem name="signUp" text="Sign Up" currentSelected={mode} onPress={() => setMode('signUp')}/>
         </View>
         {mode === 'signIn' ? <SignIn/> : <SignUp/>}
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -3,26 +3,27 @@ import {
   SafeAreaView, TouchableOpacity, SectionList, Text, View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { CommonActions, useNavigation } from '@react-navigation/native';
 
-import { Medication } from '@common/models/shared/Medication';
 import { AppState } from '@store/ReduxStore';
-import { fetchAll } from '@store/medication/reducer';
+import { fetchAll, MedicationState } from '@store/medication/reducer';
+// eslint-disable-next-line import/no-cycle
+import { MedicationsScreenProps } from '@components/Router.tsx';
 import Colors from '@components/Colors';
 import PlusIcon from '@icons/plus.svg';
 import MedicationItem from './MedicationItem/MedicationItem';
 
 import Styles from './Medications.styles';
 
-function groupMedications(medications: Medication[]) {
+function groupMedications(medications: MedicationState['medications']) {
+  const medicationValues = Object.values(medications);
   return [
     {
       title: 'Active',
-      data: medications.filter((it) => it.data.count < it.data.destinationCount),
+      data: medicationValues.filter((it) => it.data.count < it.data.destinationCount),
     },
     {
       title: 'Fulfilled',
-      data: medications.filter((it) => it.data.count === it.data.destinationCount),
+      data: medicationValues.filter((it) => it.data.count === it.data.destinationCount),
     },
   ];
 }
@@ -32,18 +33,21 @@ const SectionHeader = ({ title }: { title: string }) => <Text style={Styles.sect
     {title}
 </Text>;
 
-const Medications: FunctionComponent = () => {
+const Medications: FunctionComponent<MedicationsScreenProps<'Medications'>> = ({ navigation }) => {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
 
-  const medications = useSelector<AppState, Medication[]>((state) => state.medication.medications);
+  const medications = useSelector<AppState, MedicationState['medications']>((state) => state.medication.medications);
 
   useEffect(() => {
     dispatch(fetchAll());
   }, []);
 
   const handleAddPress = () => {
-    navigation.dispatch(CommonActions.navigate('AddEditMedication'));
+    navigation.navigate('AddEditMedication', {});
+  };
+
+  const handleItemPress = (id: number) => {
+    navigation.navigate('AddEditMedication', { id });
   };
 
   return (
@@ -54,7 +58,7 @@ const Medications: FunctionComponent = () => {
             contentContainerStyle={Styles.medicationsList}
             sections={groupMedications(medications)}
             keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => <MedicationItem medication={item}/>}
+            renderItem={({ item }) => <MedicationItem medication={item} onPress={handleItemPress}/>}
             renderSectionHeader={({ section }) => <SectionHeader title={section.title} />}
             stickySectionHeadersEnabled
         />

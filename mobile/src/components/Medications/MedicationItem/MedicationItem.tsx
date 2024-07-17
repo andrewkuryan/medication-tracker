@@ -10,6 +10,7 @@ import Styles from './MedicationItem.styles';
 
 interface MedicationItemProps {
     medication: Medication;
+    onPress: (id: number) => void;
 }
 
 function formatDate(date: Date) {
@@ -22,11 +23,18 @@ function formatProgress(value: number) {
 
 const iconSize = 26;
 
-const MedicationItem: FunctionComponent<MedicationItemProps> = ({ medication }) => {
+const MedicationItem: FunctionComponent<MedicationItemProps> = ({ medication, onPress }) => {
   const isFulfilled = medication.data.count === medication.data.destinationCount;
 
+  const handlePress = () => {
+    onPress(medication.id);
+  };
+
   return (
-    <View style={[Styles.itemRoot, ...(isFulfilled ? [Styles.fulfilled] : [])]}>
+    <TouchableOpacity
+        style={[Styles.itemRoot, ...(isFulfilled ? [Styles.fulfilled] : [])]}
+        onPress={handlePress}
+    >
         <View style={Styles.contentBlock}>
             <View style={Styles.infoBlock}>
                 <Text style={Styles.nameText}>{medication.data.name}</Text>
@@ -62,7 +70,7 @@ const MedicationItem: FunctionComponent<MedicationItemProps> = ({ medication }) 
                 ]}/>
             </View>
         </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

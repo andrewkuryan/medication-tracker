@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as yup from 'yup';
 
-import { createMedication, getAllMedications } from '@repository/medication';
+import { createMedication, getAllMedications, updateMedication } from '@repository/medication';
 import { calculateEndDate } from '@common/models/shared/Medication';
 import { authMiddleware } from './utils/auth';
 import { NotFoundError } from './utils/errors';
@@ -24,6 +24,23 @@ const createBodySchema = yup.object({
   startDate: yup.string().required(),
 });
 
+const updateSchema = yup.object({
+  id: yup.number().required(),
+  name: yup.string(),
+  description: yup.string().nullable().default(null),
+  frequency: yup.object({
+    amount: yup.number(),
+    days: yup.number(),
+  }),
+  count: yup.number().test('is-lte-destination-count', function isLteDestinationCount(count) {
+    return !count || !this.parent.destinationCount || count <= this.parent.destinationCount;
+  }),
+  destinationCount: yup.number().test('is-gte-count', function isGteCount(destinationCount) {
+    return !destinationCount || !this.parent.count || destinationCount >= this.parent.count;
+  }),
+  startDate: yup.string(),
+});
+
 router.post('/', authMiddleware, async (req, res, next) => {
   try {
     if (!req.user) {
@@ -36,6 +53,32 @@ router.post('/', authMiddleware, async (req, res, next) => {
       startDate,
       endDate: calculateEndDate(startDate, data.count, data.destinationCount, data.frequency),
     });
+
+    res.send(medication);
+  } catch (err: unknown) {
+    next(err);
+  }
+});
+
+router.put('/:id', authMiddleware, async (req, res, next) => {
+  try {
+    const data = await updateSchema.validate({ ...req.params, ...req.body });
+    const startDate = data.startDate ? new Date(data.startDate) : undefined;
+    const { frequency } = data;
+    const endDate = (startDate
+        && data.count
+        && data.destinationCount
+        && frequency
+        && frequency.amount
+        && frequency.days
+    ) ? calculateEndDate(
+        startDate,
+        data.count,
+        data.destinationCount,
+        { amount: frequency.amount, days: frequency.days },
+      ) : undefined;
+
+    const medication = await updateMedication(data.id, { ...data, startDate, endDate });
 
     res.send(medication);
   } catch (err: unknown) {
