@@ -7,7 +7,9 @@ import { actionMiddleware } from '../utils';
 import { requestWrap } from '../service/wrappers';
 import { AppState } from '../ReduxStore';
 // eslint-disable-next-line import/no-cycle
-import { createSuccess, fetchAllSuccess, updateSuccess } from './reducer';
+import {
+  createSuccess, fetchAllSuccess, updateSuccess, update as updateStart, getMedicationById,
+} from './reducer';
 import BackendApi from '../../api/BackendApi';
 
 export type MedicationResponse = Omit<Medication, 'data'> & {
@@ -65,6 +67,38 @@ const update = (api: BackendApi) => actionMiddleware(
   },
 );
 
+export type ChangeCountStartPayload = { id: number };
+
+const incrementCount = actionMiddleware(
+  'medication',
+  'incrementCount',
+  (storeApi, action) => {
+    const medication = getMedicationById(storeApi.getState().medication, action.payload.id);
+    if (medication) {
+      storeApi.dispatch(updateStart({
+        id: action.payload.id,
+        data: { ...medication.data, count: medication.data.count + 1 },
+      }));
+    }
+    return action;
+  },
+);
+
+const decrementCount = actionMiddleware(
+  'medication',
+  'decrementCount',
+  (storeApi, action) => {
+    const medication = getMedicationById(storeApi.getState().medication, action.payload.id);
+    if (medication) {
+      storeApi.dispatch(updateStart({
+        id: action.payload.id,
+        data: { ...medication.data, count: medication.data.count - 1 },
+      }));
+    }
+    return action;
+  },
+);
+
 export interface FetchAllSuccessPayload {
     medications: Medication[];
 }
@@ -87,6 +121,10 @@ const getMedicationMiddlewares = (api: BackendApi) => [
     create(api) as Middleware<{}, AppState>,
     // eslint-disable-next-line @typescript-eslint/ban-types
     update(api) as Middleware<{}, AppState>,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    incrementCount as Middleware<{}, AppState>,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    decrementCount as Middleware<{}, AppState>,
     // eslint-disable-next-line @typescript-eslint/ban-types
     fetchAll(api) as Middleware<{}, AppState>,
 ];

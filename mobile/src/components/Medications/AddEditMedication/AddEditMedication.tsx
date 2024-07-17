@@ -49,11 +49,13 @@ const frequencyValidator = validator({ amount: numberValidator, days: numberVali
 const countValidator = (
   value: number | undefined,
   { destinationCount }: { destinationCount: number | undefined },
-) => numberValidator(value) ?? ((value ?? 0) > (destinationCount ?? 0) ? 'Should be not greater than Destination Count' : undefined);
+) => (numberValidator(value) ?? (value ?? 0) < 0 ? 'Should be not less than 0'
+  : ((value ?? 0) > (destinationCount ?? 0) ? 'Should be not greater than Destination Count' : undefined));
 const destinationCountValidator = (
   value: number | undefined,
   { count }: { count: number | undefined },
-) => numberValidator(value) ?? ((value ?? 0) < (count ?? 0) ? 'Should be not less than Count' : undefined);
+) => (numberValidator(value) ?? (value ?? 0) < 1 ? 'Should be not less than 1'
+  : ((value ?? 0) < (count ?? 0) ? 'Should be not less than Count' : undefined));
 const startDateValidator = (value: Date | undefined) => (!value ? 'Should not be empty' : undefined);
 
 const validatorConfig: ValidatorConfig<CreateStartPayload> = {

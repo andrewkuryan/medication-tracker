@@ -1,11 +1,13 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import React, { FunctionComponent, useCallback, useEffect } from 'react';
 import {
   SafeAreaView, TouchableOpacity, SectionList, Text, View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AppState } from '@store/ReduxStore';
-import { fetchAll, MedicationState } from '@store/medication/reducer';
+import {
+  decrementCount, fetchAll, incrementCount, MedicationState,
+} from '@store/medication/reducer';
 // eslint-disable-next-line import/no-cycle
 import { MedicationsScreenProps } from '@components/Router.tsx';
 import Colors from '@components/Colors';
@@ -40,9 +42,17 @@ const Medications: FunctionComponent<MedicationsScreenProps<'Medications'>> = ({
     navigation.navigate('AddEditMedication', {});
   };
 
-  const handleItemPress = (id: number) => {
+  const handleItemPress = useCallback((id: number) => {
     navigation.navigate('AddEditMedication', { id });
-  };
+  }, []);
+
+  const handleIncItem = useCallback((id: number) => {
+    dispatch(incrementCount({ id }));
+  }, []);
+
+  const handleDecItem = useCallback((id: number) => {
+    dispatch(decrementCount({ id }));
+  }, []);
 
   const handleRefresh = () => {
     dispatch(fetchAll());
@@ -60,7 +70,12 @@ const Medications: FunctionComponent<MedicationsScreenProps<'Medications'>> = ({
             contentContainerStyle={Styles.medicationsList}
             sections={groupMedications(medications)}
             keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => <MedicationItem medication={item} onPress={handleItemPress}/>}
+            renderItem={({ item }) => <MedicationItem
+                medication={item}
+                onPress={handleItemPress}
+                onIncCount={handleIncItem}
+                onDecCount={handleDecItem}
+            />}
             renderSectionHeader={({ section }) => <SectionHeader title={section.title} />}
             stickySectionHeadersEnabled
             ListEmptyComponent={ListPlaceholder}

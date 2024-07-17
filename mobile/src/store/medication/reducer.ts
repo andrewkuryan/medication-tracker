@@ -5,7 +5,11 @@ import { Medication } from '@common/models/shared/Medication';
 import { SliceActionType } from '../utils';
 // eslint-disable-next-line import/no-cycle
 import {
-  CreateStartPayload, CreateSuccessPayload, FetchAllSuccessPayload, UpdateStartPayload,
+  ChangeCountStartPayload,
+  CreateStartPayload,
+  CreateSuccessPayload,
+  FetchAllSuccessPayload,
+  UpdateStartPayload,
 } from './middleware';
 
 export interface MedicationState {
@@ -53,11 +57,22 @@ const medicationSlice = createSlice({
       // eslint-disable-next-line no-param-reassign
       state.medications[getMedicationKey(medication.id)] = medication;
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    incrementCount(_, action: PayloadAction<ChangeCountStartPayload>) {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    decrementCount(_, action: PayloadAction<ChangeCountStartPayload>) {},
   },
 });
 
 export const {
-  fetchAll, fetchAllSuccess, create, createSuccess, update, updateSuccess,
+  fetchAll,
+  fetchAllSuccess,
+  create,
+  createSuccess,
+  update,
+  updateSuccess,
+  incrementCount,
+  decrementCount,
 } = medicationSlice.actions;
 
 export type MedicationActionType = SliceActionType<typeof medicationSlice.actions>;

@@ -18,6 +18,7 @@ module.exports = {
     ],
     'import/no-extraneous-dependencies': 'off',
     'max-classes-per-file': 'off',
+    'no-nested-ternary': 'off',
   },
   settings: {
     'import/resolver': {

@@ -15,12 +15,16 @@ const createBodySchema = yup.object({
     amount: yup.number().required(),
     days: yup.number().required(),
   }).required(),
-  count: yup.number().required().test('is-lte-destination-count', function isLteDestinationCount(count) {
-    return count <= this.parent.destinationCount;
-  }),
-  destinationCount: yup.number().required().test('is-gte-count', function isGteCount(destinationCount) {
-    return destinationCount >= this.parent.count;
-  }),
+  count: yup.number().required()
+    .min(0)
+    .test('is-lte-destination-count', function isLteDestinationCount(count) {
+      return count <= this.parent.destinationCount;
+    }),
+  destinationCount: yup.number().required()
+    .min(1)
+    .test('is-gte-count', function isGteCount(destinationCount) {
+      return destinationCount >= this.parent.count;
+    }),
   startDate: yup.string().required(),
 });
 
@@ -32,12 +36,16 @@ const updateSchema = yup.object({
     amount: yup.number(),
     days: yup.number(),
   }),
-  count: yup.number().test('is-lte-destination-count', function isLteDestinationCount(count) {
-    return !count || !this.parent.destinationCount || count <= this.parent.destinationCount;
-  }),
-  destinationCount: yup.number().test('is-gte-count', function isGteCount(destinationCount) {
-    return !destinationCount || !this.parent.count || destinationCount >= this.parent.count;
-  }),
+  count: yup.number()
+    .min(0)
+    .test('is-lte-destination-count', function isLteDestinationCount(count) {
+      return !count || !this.parent.destinationCount || count <= this.parent.destinationCount;
+    }),
+  destinationCount: yup.number()
+    .min(1)
+    .test('is-gte-count', function isGteCount(destinationCount) {
+      return !destinationCount || !this.parent.count || destinationCount >= this.parent.count;
+    }),
   startDate: yup.string(),
 });
 

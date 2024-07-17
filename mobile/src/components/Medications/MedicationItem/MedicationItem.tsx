@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, memo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 import { Medication } from '@common/models/shared/Medication';
@@ -11,6 +11,8 @@ import Styles from './MedicationItem.styles';
 interface MedicationItemProps {
     medication: Medication;
     onPress: (id: number) => void;
+    onIncCount: (id: number) => void;
+    onDecCount: (id: number) => void;
 }
 
 function formatDate(date: Date) {
@@ -23,11 +25,21 @@ function formatProgress(value: number) {
 
 const iconSize = 26;
 
-const MedicationItem: FunctionComponent<MedicationItemProps> = ({ medication, onPress }) => {
+const MedicationItem: FunctionComponent<MedicationItemProps> = ({
+  medication, onPress, onIncCount, onDecCount,
+}) => {
   const isFulfilled = medication.data.count === medication.data.destinationCount;
 
   const handlePress = () => {
     onPress(medication.id);
+  };
+
+  const handleIncPress = () => {
+    onIncCount(medication.id);
+  };
+
+  const handleDecPress = () => {
+    onDecCount(medication.id);
   };
 
   return (
@@ -48,13 +60,13 @@ const MedicationItem: FunctionComponent<MedicationItemProps> = ({ medication, on
                 </View>
             </View>
             <View style={Styles.buttonsBlock}>
-                {medication.data.count > 0 ? <TouchableOpacity>
+                {medication.data.count > 0 ? <TouchableOpacity onPress={handleDecPress}>
                     <MinusIcon width={iconSize} height={iconSize} stroke={Colors.secondaryColor}/>
                 </TouchableOpacity> : <View style={{ width: iconSize }}/>}
                 <Text style={Styles.countText}>
                     {medication.data.count} / {medication.data.destinationCount}
                 </Text>
-                {!isFulfilled ? <TouchableOpacity>
+                {!isFulfilled ? <TouchableOpacity onPress={handleIncPress}>
                     <PlusIcon width={iconSize} height={iconSize} stroke={Colors.secondaryColor}/>
                 </TouchableOpacity> : <View style={{ width: iconSize }}/>}
             </View>
@@ -74,4 +86,4 @@ const MedicationItem: FunctionComponent<MedicationItemProps> = ({ medication, on
   );
 };
 
-export default MedicationItem;
+export default memo(MedicationItem);
