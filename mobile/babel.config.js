@@ -11,6 +11,7 @@ module.exports = {
           '^@common/(.+)': '../common/src/\\1',
           '^@store/(.+)': './src/store/\\1',
           '^@components/(.+)': './src/components/\\1',
+          '^@icons/(.+)': './src/icons/\\1',
         },
       },
     ],

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as yup from 'yup';
 
-import { createMedication } from '@repository/medication';
+import { createMedication, getAllMedications } from '@repository/medication';
 import { calculateEndDate } from '@common/models/shared/Medication';
 import { authMiddleware } from './utils/auth';
 import { NotFoundError } from './utils/errors';
@@ -38,6 +38,19 @@ router.post('/', authMiddleware, async (req, res, next) => {
     });
 
     res.send(medication);
+  } catch (err: unknown) {
+    next(err);
+  }
+});
+
+router.get('/', authMiddleware, async (req, res, next) => {
+  try {
+    if (!req.user) {
+      throw new NotFoundError('User', 'me');
+    }
+    const medications = await getAllMedications(req.user);
+
+    res.send(medications);
   } catch (err: unknown) {
     next(err);
   }
