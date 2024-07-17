@@ -18,8 +18,13 @@ export interface Medication {
     data: MedicationData;
 }
 
-export function calculateEndDate(startDate: Date, destinationCount: number, frequency: Frequency): Date {
-  const courseDays = destinationCount / (frequency.amount / frequency.days);
+export function calculateEndDate(
+  startDate: Date,
+  initialCount: number,
+  destinationCount: number,
+  frequency: Frequency,
+): Date {
+  const courseDays = (destinationCount - initialCount) / (frequency.amount / frequency.days);
   const endDate = new Date(startDate);
   endDate.setDate(startDate.getDate() + courseDays);
   return endDate;

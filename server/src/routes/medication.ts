@@ -15,7 +15,12 @@ const createBodySchema = yup.object({
     amount: yup.number().required(),
     days: yup.number().required(),
   }).required(),
-  destinationCount: yup.number().required(),
+  count: yup.number().required().test('is-lte-destination-count', function isLteDestinationCount(count) {
+    return count <= this.parent.destinationCount;
+  }),
+  destinationCount: yup.number().required().test('is-gte-count', function isGteCount(destinationCount) {
+    return destinationCount >= this.parent.count;
+  }),
   startDate: yup.string().required(),
 });
 
@@ -28,9 +33,8 @@ router.post('/', authMiddleware, async (req, res, next) => {
     const startDate = new Date(data.startDate);
     const medication = await createMedication(req.user, {
       ...data,
-      count: 0,
       startDate,
-      endDate: calculateEndDate(startDate, data.destinationCount, data.frequency),
+      endDate: calculateEndDate(startDate, data.count, data.destinationCount, data.frequency),
     });
 
     res.send(medication);

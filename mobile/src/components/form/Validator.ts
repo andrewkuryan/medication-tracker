@@ -8,7 +8,10 @@ type ErrorValue<V> =
 export type ErrorsObject<T> = { [K in keyof T]?: ErrorValue<T[K]> }
 
 export type ValidatorConfig<T> = {
-    [K in keyof T]: (parseResult: NullableValue<T[K]>) => ErrorValue<T[K]>
+    [K in keyof T]: (
+        parseResult: NullableValue<T[K]>,
+        context: NullableObject<T>
+    ) => ErrorValue<T[K]>
 }
 
 type Validator<T> = (model: NullableObject<T>) => ErrorsObject<T>
@@ -26,7 +29,7 @@ function isErrorsObject<V>(value: string | undefined | ErrorsObject<V>): value i
 export function validator<T>(config: ValidatorConfig<T>): Validator<T> {
   return (parserResult) => (Object.keys(parserResult) as (keyof T)[])
     .reduce((acc, key) => {
-      const fieldResult = config[key](parserResult[key]);
+      const fieldResult = config[key](parserResult[key], parserResult);
       if (isErrorsObject<T[typeof key]>(fieldResult)) {
         return Object.keys(fieldResult).length > 0 ? { ...acc, [key]: fieldResult } : acc;
       }

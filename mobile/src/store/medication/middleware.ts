@@ -10,7 +10,7 @@ import { AppState } from '../ReduxStore';
 import { createSuccess } from './reducer';
 import BackendApi from '../../api/BackendApi';
 
-export type CreateStartPayload = Omit<MedicationData, 'count' | 'endDate'>
+export type CreateStartPayload = Omit<MedicationData, 'endDate'>
 
 export interface CreateSuccessPayload {
     medication: Medication;

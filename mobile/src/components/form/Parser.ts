@@ -12,7 +12,7 @@ type DefinedValue<V> =
     V extends object ? DefinedObject<V> : never
 type DefinedObject<T> = { [K in keyof T]: DefinedValue<T[K]> }
 
-type Parser<T, M extends FormModel<T>> = (model: Partial<M>) => NullableObject<T>
+type Parser<T, M extends FormModel<T>> = (model: M) => NullableObject<T>
 
 export type ParserConfig<T, M extends FormModel<T>> = {
     [K in keyof T]: (model: M[K]) => NullableValue<T[K]>
@@ -40,8 +40,5 @@ export function isDefinedObject<T>(result: NullableObject<T>): result is Defined
 
 export function parser<T, M extends FormModel<T>>(config: ParserConfig<T, M>): Parser<T, M> {
   return (model) => (Object.keys(config) as (keyof T)[])
-    .reduce((acc, key) => ({
-      ...acc,
-      [key]: (model[key] !== undefined) ? config[key](model[key]) : undefined,
-    }), {} as NullableObject<T>);
+    .reduce((acc, key) => ({ ...acc, [key]: config[key](model[key]) }), {} as NullableObject<T>);
 }

@@ -21,6 +21,7 @@ interface AddEditForm {
         amount: string;
         days: string
     },
+    count: string;
     destinationCount: string;
     startDate: Date | null;
 }
@@ -34,41 +35,56 @@ const parserConfig: ParserConfig<CreateStartPayload, AddEditForm> = {
     amount: numberParser,
     days: numberParser,
   }),
+  count: numberParser,
   destinationCount: numberParser,
   startDate: (value) => value ?? undefined,
 };
 
 const numberValidator = (value: number | undefined) => ((!value || Number.isNaN(value)) ? 'Should be a number' : undefined);
+const frequencyValidator = validator({ amount: numberValidator, days: numberValidator });
+const countValidator = (
+  value: number | undefined,
+  { destinationCount }: { destinationCount: number | undefined },
+) => numberValidator(value) ?? ((value ?? 0) > (destinationCount ?? 0) ? 'Should be not greater than Destination Count' : undefined);
+const destinationCountValidator = (
+  value: number | undefined,
+  { count }: { count: number | undefined },
+) => numberValidator(value) ?? ((value ?? 0) < (count ?? 0) ? 'Should be not less than Count' : undefined);
+const startDateValidator = (value: Date | undefined) => (!value ? 'Should not be empty' : undefined);
 
 const validatorConfig: ValidatorConfig<CreateStartPayload> = {
   name: (value) => (!value || value.length === 0 ? 'Should not be empty' : undefined),
   description: () => undefined,
-  frequency: validator({
-    amount: numberValidator,
-    days: numberValidator,
-  }),
-  destinationCount: numberValidator,
-  startDate: (value) => (!value ? 'Should not be empty' : undefined),
+  frequency: frequencyValidator,
+  count: countValidator,
+  destinationCount: destinationCountValidator,
+  startDate: startDateValidator,
 };
 
-type CalculateModelParams = Pick<CreateStartPayload, 'startDate' | 'frequency' | 'destinationCount'>;
-type CalculateFormParams = Pick<AddEditForm, 'startDate' | 'frequency' | 'destinationCount'>;
+type CalculateModelParams = Pick<CreateStartPayload, 'startDate' | 'frequency' | 'count' | 'destinationCount'>;
+type CalculateFormParams = Pick<AddEditForm, 'startDate' | 'frequency' | 'count' | 'destinationCount'>;
 
 function useEndDate(params: CalculateFormParams) {
   const data = parser<CalculateModelParams, CalculateFormParams>({
     startDate: parserConfig.startDate,
     frequency: parserConfig.frequency,
+    count: parserConfig.count,
     destinationCount: parserConfig.destinationCount,
   })(params);
 
-  const errors = validator<CalculateModelParams>(validatorConfig)(data);
+  const errors = validator<CalculateModelParams>({
+    startDate: startDateValidator,
+    frequency: frequencyValidator,
+    count: countValidator,
+    destinationCount: destinationCountValidator,
+  })(data);
   if (errors.startDate) return 'Specify Start Date';
   if (errors.destinationCount) return 'Specify Destination Count';
   if (errors.frequency?.amount) return 'Specify Frequency Amount';
   if (errors.frequency?.days) return 'Specify Frequency Days';
 
   if (isDefinedObject(data) && Object.keys(errors).length === 0) {
-    return calculateEndDate(data.startDate, data.destinationCount, data.frequency);
+    return calculateEndDate(data.startDate, data.count, data.destinationCount, data.frequency);
   }
   return undefined;
 }
@@ -84,17 +100,20 @@ const AddEditMedication: FunctionComponent = () => {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('1');
   const [days, setDays] = useState('1');
+  const [count, setCount] = useState('0');
   const [destinationCount, setDestinationCount] = useState('');
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
   const [startDate, setStartDate] = useState<Date | null>(null);
 
-  const endDate = useEndDate({ startDate, destinationCount, frequency: { amount, days } });
+  const endDate = useEndDate({
+    startDate, count, destinationCount, frequency: { amount, days },
+  });
 
   const [errors, setErrors] = useState<ErrorsObject<CreateStartPayload>>({});
 
   const handleSubmit = () => {
     const data = parser(parserConfig)({
-      name, description, frequency: { amount, days }, destinationCount, startDate,
+      name, description, frequency: { amount, days }, count, destinationCount, startDate,
     });
     const validationResult = validator(validatorConfig)(data);
     setErrors(validationResult);
@@ -152,6 +171,16 @@ const AddEditMedication: FunctionComponent = () => {
                         {errors.frequency?.days
                             && <Text style={Styles.fieldError}>{errors.frequency?.days}</Text>}
                     </View>
+                </View>
+                <View style={Styles.fieldWrapper}>
+                    <Text style={Styles.fieldLabel}>Initial Count*</Text>
+                    <TextInput
+                        style={[Styles.inputField, Styles.textInputField]}
+                        keyboardType="numeric"
+                        value={count}
+                        onChangeText={setCount}
+                    />
+                    {errors.count && <Text style={Styles.fieldError}>{errors.count}</Text>}
                 </View>
                 <View style={Styles.fieldWrapper}>
                     <Text style={Styles.fieldLabel}>Destination Count*</Text>
