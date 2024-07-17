@@ -11,6 +11,7 @@ export interface MedicationData {
     destinationCount: number;
     startDate: Date;
     endDate: Date;
+    createdAt: Date;
 }
 
 export interface Medication {

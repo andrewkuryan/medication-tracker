@@ -1,17 +1,22 @@
-import { Medication, MedicationData } from '@common/models/shared/Medication';
+import { Medication } from '@common/models/shared/Medication';
 import { User } from '@common/models/shared/User';
 import getClient from '@db/client';
 import { insertQuery, selectQuery, updateQuery } from '@db/queries';
 import { eq } from '@db/where';
+import { desc } from '@db/order';
 import { DBMedication, medicationSchema } from '@db/scheme/Medication';
 import {
   dbMedicationToMedication,
   medicationToDBMedication,
   medicationToMedicationUpdate,
+  MedicationCreateData,
   MedicationUpdateData,
 } from '@repository/converters/medication';
 
-export async function createMedication(user: User, data: MedicationData): Promise<Medication> {
+export async function createMedication(
+  user: User,
+  data: MedicationCreateData,
+): Promise<Medication> {
   const dbClient = await getClient();
   const medicationResult = await dbClient.query<DBMedication>(
     insertQuery(medicationSchema, medicationToDBMedication(data, user)),
@@ -35,7 +40,10 @@ export async function updateMedication(
 export async function getAllMedications(user: User): Promise<Medication[]> {
   const dbClient = await getClient();
   const rawMedications = await dbClient.query<DBMedication>(
-    selectQuery(medicationSchema, { where: eq('user_id', user.id) }),
+    selectQuery(medicationSchema, {
+      where: eq('user_id', user.id),
+      orderBy: desc(['created_at']),
+    }),
   );
 
   return rawMedications.rows.map(dbMedicationToMedication);

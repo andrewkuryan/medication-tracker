@@ -4,6 +4,7 @@ import { InsertSchemaType, SchemaType } from './SchemaType';
 import { Column, ColumnType, Schema } from './Schema';
 import { JoinQuery, formatJoin } from './join';
 import { formatWhereQuery, WhereExp } from './where';
+import { formatOrderExp, OrderExp } from './order';
 
 function formatColumnType(columnType: ColumnType): string {
   switch (columnType.name) {
@@ -52,11 +53,16 @@ export function updateQuery<S extends Schema>(
 
 interface SelectOptions<S extends Schema> {
     where?: WhereExp<S>,
-    join?: JoinQuery<S>[]
+    join?: JoinQuery<S>[],
+    orderBy?: OrderExp<S>
 }
 
 export function selectQuery<S extends Schema>(schema: S, options?: SelectOptions<S>) {
   const joinString = options?.join ? options.join.map((it) => formatJoin(schema, it)).join(' ') : '';
   const whereString = options?.where ? formatWhereQuery(options.where, schema) : '';
-  return `SELECT * FROM ${schema.tableName}${joinString ? ` ${joinString}` : ''}${whereString ? ` ${whereString}` : ''}`;
+  const orderString = options?.orderBy ? formatOrderExp(options.orderBy, schema) : '';
+  return `SELECT * FROM ${schema.tableName}${
+    joinString ? ` ${joinString}` : ''}${
+    whereString ? ` ${whereString}` : ''}${
+    orderString ? `${orderString}` : ''}`;
 }

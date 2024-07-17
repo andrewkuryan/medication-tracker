@@ -9,12 +9,21 @@ import {
 } from './middleware';
 
 export interface MedicationState {
-    medications: { [id: number]: Medication };
+  medications: { [key: string]: Medication };
 }
 
 const initialState: MedicationState = {
-  medications: [],
+  medications: {},
 };
+
+const getMedicationKey = (medicationId: number) => `$${medicationId}`;
+
+export function getMedicationById(
+  state: MedicationState,
+  id: number | undefined,
+): Medication | undefined {
+  return id ? state.medications[getMedicationKey(id)] : undefined;
+}
 
 const medicationSlice = createSlice({
   name: 'medication',
@@ -22,23 +31,27 @@ const medicationSlice = createSlice({
   reducers: {
     fetchAll() {},
     fetchAllSuccess(state, action: PayloadAction<FetchAllSuccessPayload>) {
+      const newMedications = {} as MedicationState['medications'];
       for (let i = 0; i < action.payload.medications.length; i += 1) {
         const medication = action.payload.medications[i];
-        // eslint-disable-next-line no-param-reassign
-        state.medications[medication.id] = medication;
+        newMedications[getMedicationKey(medication.id)] = medication;
       }
+      // eslint-disable-next-line no-param-reassign
+      state.medications = newMedications;
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     create(_, action: PayloadAction<CreateStartPayload>) {},
     createSuccess(state, action: PayloadAction<CreateSuccessPayload>) {
+      const { medication } = action.payload;
       // eslint-disable-next-line no-param-reassign
-      state.medications[action.payload.medication.id] = action.payload.medication;
+      state.medications = { [getMedicationKey(medication.id)]: medication, ...state.medications };
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     update(_, action: PayloadAction<UpdateStartPayload>) {},
     updateSuccess(state, action: PayloadAction<CreateSuccessPayload>) {
+      const { medication } = action.payload;
       // eslint-disable-next-line no-param-reassign
-      state.medications[action.payload.medication.id] = action.payload.medication;
+      state.medications[getMedicationKey(medication.id)] = medication;
     },
   },
 });

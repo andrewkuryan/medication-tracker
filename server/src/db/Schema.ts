@@ -17,6 +17,7 @@ export const DateType = <N extends boolean = false>(nullable?: N) => ({
   name: 'DATE',
   nullable: nullable ?? false,
 }) as const;
+export const Timestamp = { name: 'TIMESTAMP', nullable: false } as const;
 export const BooleanType = <N extends boolean = false>(nullable?: N) => ({
   name: 'BOOLEAN',
   nullable: nullable ?? false,
@@ -28,6 +29,7 @@ export type ColumnType = typeof Serial |
     ReturnType<typeof Varchar> |
     ReturnType<typeof TextType> |
     ReturnType<typeof DateType> |
+    typeof Timestamp |
     ReturnType<typeof BooleanType>;
 
 export interface Column<D extends boolean> {

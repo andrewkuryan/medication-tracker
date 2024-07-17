@@ -1,12 +1,15 @@
 // eslint-disable-next-line import/no-cycle
 import { StoreAPI } from '../utils';
-import { finishFetching, setError, startFetching } from './reducer';
+import {
+  finishFetching, resetError, setError, startFetching,
+} from './reducer';
 import { ApiError } from '../../api/BackendApi';
 
 export const fetchWrap = <T>(storeApi: StoreAPI, fn: () => Promise<T>) => {
   Promise.resolve()
     .then(() => storeApi.dispatch(startFetching()))
     .then(() => fn())
+    .then(() => storeApi.dispatch(resetError()))
     .finally(() => storeApi.dispatch(finishFetching()));
 };
 

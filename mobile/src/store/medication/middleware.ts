@@ -28,7 +28,7 @@ function parseMedication(response: MedicationResponse): Medication {
   };
 }
 
-export type CreateStartPayload = Omit<MedicationData, 'endDate'>
+export type CreateStartPayload = Omit<MedicationData, 'endDate' | 'createdAt'>
 
 export interface CreateSuccessPayload {
     medication: Medication;
@@ -47,7 +47,7 @@ const create = (api: BackendApi) => actionMiddleware(
   },
 );
 
-export type UpdateStartPayload = { id: number; data: Omit<MedicationData, 'endDate'> };
+export type UpdateStartPayload = { id: number; data: Omit<MedicationData, 'endDate' | 'createdAt'> };
 
 const update = (api: BackendApi) => actionMiddleware(
   'medication',

@@ -24,6 +24,12 @@ const styles = StyleSheet.create({
   itemSeparator: {
     height: 10,
   },
+  listPlaceholderText: {
+    fontSize: 18,
+    marginTop: 20,
+    textAlign: 'center',
+    width: '100%',
+  },
   medicationsList: {
     padding: 10,
   },

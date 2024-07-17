@@ -16,12 +16,15 @@ export function dbMedicationToMedication(medication: DBMedication): Medication {
       destinationCount: medication.destination_count,
       startDate: new Date(medication.start_date),
       endDate: new Date(medication.end_date),
+      createdAt: new Date(medication.created_at),
     },
   };
 }
 
+export type MedicationCreateData = Omit<MedicationData, 'createdAt'>
+
 export function medicationToDBMedication(
-  medicationData: MedicationData,
+  medicationData: MedicationCreateData,
   user: User,
 ): DBMedicationInsert {
   return {
@@ -37,7 +40,9 @@ export function medicationToDBMedication(
   };
 }
 
-export type MedicationUpdateData = Partial<Omit<MedicationData, 'frequency'> & { frequency?: Partial<MedicationData['frequency']> }>
+export type MedicationUpdateData = Partial<Omit<MedicationData, 'frequency' | 'createdAt'> & {
+  frequency?: Partial<MedicationData['frequency']>
+}>
 
 export function medicationToMedicationUpdate(
   medicationData: MedicationUpdateData,

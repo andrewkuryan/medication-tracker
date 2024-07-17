@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { calculateEndDate, Medication } from '@common/models/shared/Medication';
 import { AppDispatch, AppState } from '@store/ReduxStore';
-import { create as createMedication, update as updateMedication } from '@store/medication/reducer';
+import { create as createMedication, getMedicationById, update as updateMedication } from '@store/medication/reducer';
 import { ServiceState } from '@store/service/reducer';
 import { CreateStartPayload } from '@store/medication/middleware';
 // eslint-disable-next-line import/no-cycle
@@ -100,8 +100,10 @@ function formatDate(date: Date) {
 const AddEditMedication: FunctionComponent<MedicationsScreenProps<'AddEditMedication'>> = ({ navigation, route }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const medication = useSelector<AppState, Medication | undefined>((state) => (route.params.id
-    ? state.medication.medications[route.params.id] : undefined));
+  const medication = useSelector<AppState, Medication | undefined>((state) => getMedicationById(
+    state.medication,
+    route.params.id,
+  ));
   const serviceState = useSelector<AppState, ServiceState>((state) => state.service);
 
   const prevIsFetching = usePrevious(serviceState.isFetching);

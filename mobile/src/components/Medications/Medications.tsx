@@ -16,15 +16,11 @@ import Styles from './Medications.styles';
 
 function groupMedications(medications: MedicationState['medications']) {
   const medicationValues = Object.values(medications);
+  const active = medicationValues.filter((it) => it.data.count < it.data.destinationCount);
+  const fulfilled = medicationValues.filter((it) => it.data.count === it.data.destinationCount);
   return [
-    {
-      title: 'Active',
-      data: medicationValues.filter((it) => it.data.count < it.data.destinationCount),
-    },
-    {
-      title: 'Fulfilled',
-      data: medicationValues.filter((it) => it.data.count === it.data.destinationCount),
-    },
+    ...(active.length > 0 ? [{ title: 'Active', data: active }] : []),
+    ...(fulfilled.length > 0 ? [{ title: 'Fulfilled', data: fulfilled }] : []),
   ];
 }
 
@@ -32,15 +28,13 @@ const ItemSeparator = () => <View style={Styles.itemSeparator} />;
 const SectionHeader = ({ title }: { title: string }) => <Text style={Styles.sectionTitle}>
     {title}
 </Text>;
+const ListPlaceholder = () => <Text style={Styles.listPlaceholderText}>No medications found</Text>;
 
 const Medications: FunctionComponent<MedicationsScreenProps<'Medications'>> = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const medications = useSelector<AppState, MedicationState['medications']>((state) => state.medication.medications);
-
-  useEffect(() => {
-    dispatch(fetchAll());
-  }, []);
+  const isFetching = useSelector<AppState, boolean>((state) => state.service.isFetching);
 
   const handleAddPress = () => {
     navigation.navigate('AddEditMedication', {});
@@ -50,17 +44,28 @@ const Medications: FunctionComponent<MedicationsScreenProps<'Medications'>> = ({
     navigation.navigate('AddEditMedication', { id });
   };
 
+  const handleRefresh = () => {
+    dispatch(fetchAll());
+  };
+
+  useEffect(() => {
+    handleRefresh();
+  }, []);
+
   return (
     <SafeAreaView style={Styles.medicationsRoot}>
         <SectionList
-            ItemSeparatorComponent={() => <ItemSeparator />}
-            SectionSeparatorComponent={() => <ItemSeparator />}
+            ItemSeparatorComponent={ItemSeparator}
+            SectionSeparatorComponent={ItemSeparator}
             contentContainerStyle={Styles.medicationsList}
             sections={groupMedications(medications)}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => <MedicationItem medication={item} onPress={handleItemPress}/>}
             renderSectionHeader={({ section }) => <SectionHeader title={section.title} />}
             stickySectionHeadersEnabled
+            ListEmptyComponent={ListPlaceholder}
+            onRefresh={handleRefresh}
+            refreshing={isFetching}
         />
         <TouchableOpacity style={Styles.floatingButton} onPress={handleAddPress}>
             <PlusIcon width={35} height={35} stroke={Colors.secondaryColor}/>
