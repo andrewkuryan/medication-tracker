@@ -1,13 +1,18 @@
 import { Middleware } from '@reduxjs/toolkit';
 
-import { User } from '@common/models/shared/User';
+import { User, UserData } from '@common/models/shared/User';
 // eslint-disable-next-line import/no-cycle
 import { actionMiddleware } from '../utils';
 // eslint-disable-next-line import/no-cycle
 import { requestWrap } from '../service/wrappers';
 // eslint-disable-next-line import/no-cycle
 import {
-  fetch as fetchUser, fetchSuccess, logout, registerSuccess,
+  editSuccess,
+  fetch as fetchUser,
+  fetchSuccess,
+  logout as logoutStart,
+  logoutSuccess,
+  registerSuccess,
 } from './reducer';
 import { AppState } from '../ReduxStore';
 import {
@@ -15,6 +20,22 @@ import {
 } from './session';
 import BackendApi from '../../api/BackendApi';
 import ClientSRPGenerator from '../../utils/crypto/srp';
+
+export type UserResponse = Omit<User, 'data'> & {
+    data: Omit<UserData, 'birthDate'> & {
+        birthDate: string | null;
+    }
+}
+
+function parseUser(response: UserResponse): User {
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      birthDate: response.data.birthDate ? new Date(response.data.birthDate) : null,
+    },
+  };
+}
 
 export interface LoginStartPayload {
     email: string;
@@ -26,7 +47,7 @@ export interface LoginSuccessPayload {
 }
 
 export interface RegisterResponse {
-    user: User;
+    user: UserResponse;
     sessionId: number;
     publicKeyHex: string;
 }
@@ -40,7 +61,7 @@ const register = (api: BackendApi, srpGenerator: ClientSRPGenerator) => actionMi
       const { salt, verifier } = srpGenerator.generateSaltVerifier(email, password);
       const { privateKey, publicKey } = srpGenerator.generateKeys();
       const {
-        user,
+        user: userResult,
         sessionId,
         publicKeyHex: serverPublicKeyHex,
       } = await api.post<RegisterResponse>({
@@ -55,7 +76,7 @@ const register = (api: BackendApi, srpGenerator: ClientSRPGenerator) => actionMi
       setSessionHeaders(api, session);
       await saveSession(session);
 
-      storeApi.dispatch(registerSuccess({ user }));
+      storeApi.dispatch(registerSuccess({ user: parseUser(userResult) }));
     });
     return action;
   },
@@ -72,9 +93,9 @@ const fetchMiddleware = (api: BackendApi) => actionMiddleware(
   'fetch',
   (storeApi, action) => {
     requestWrap(storeApi, async () => {
-      const user = await api.get<User>({ url: '/users/me' });
+      const result = await api.get<UserResponse>({ url: '/users/me' });
 
-      storeApi.dispatch(fetchSuccess({ user }));
+      storeApi.dispatch(fetchSuccess({ user: parseUser(result) }));
     });
     return action;
   },
@@ -102,16 +123,44 @@ const login = (api: BackendApi, srpGenerator: ClientSRPGenerator) => actionMiddl
   },
 );
 
-const logoutOnNotAuthorized = (api: BackendApi) => actionMiddleware(
+const logout = (api: BackendApi) => actionMiddleware(
+  'user',
+  'logout',
+  (storeApi, action) => {
+    removeSession().then(() => {
+      resetSessionHeaders(api);
+      storeApi.dispatch(logoutSuccess());
+    });
+    return action;
+  },
+);
+
+const logoutOnNotAuthorized = actionMiddleware(
   'service',
   'setError',
   (storeApi, action) => {
     if (action.payload.code === 401) {
-      removeSession().then(() => {
-        resetSessionHeaders(api);
-        storeApi.dispatch(logout());
-      });
+      storeApi.dispatch(logoutStart());
     }
+    return action;
+  },
+);
+
+export type EditStartPayload = Omit<UserData, 'email'>;
+
+export interface EditSuccessPayload {
+    user: User;
+}
+
+const edit = (api: BackendApi) => actionMiddleware(
+  'user',
+  'edit',
+  (storeApi, action) => {
+    requestWrap(storeApi, async () => {
+      const result = await api.put<UserResponse>({ url: '/users/me', body: action.payload });
+
+      storeApi.dispatch(editSuccess({ user: parseUser(result) }));
+    });
     return action;
   },
 );
@@ -124,7 +173,11 @@ const getUserMiddlewares = (api: BackendApi, srpGenerator: ClientSRPGenerator) =
     // eslint-disable-next-line @typescript-eslint/ban-types
     login(api, srpGenerator) as Middleware<{}, AppState>,
     // eslint-disable-next-line @typescript-eslint/ban-types
-    logoutOnNotAuthorized(api) as Middleware<{}, AppState>,
+    logout(api) as Middleware<{}, AppState>,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    logoutOnNotAuthorized as Middleware<{}, AppState>,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    edit(api) as Middleware<{}, AppState>,
 ];
 
 export default getUserMiddlewares;

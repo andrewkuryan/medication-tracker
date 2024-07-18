@@ -4,7 +4,9 @@ import { User } from '@common/models/shared/User';
 // eslint-disable-next-line import/no-cycle
 import { SliceActionType } from '../utils';
 // eslint-disable-next-line import/no-cycle
-import { LoginStartPayload, LoginSuccessPayload } from './middleware';
+import {
+  EditStartPayload, EditSuccessPayload, LoginStartPayload, LoginSuccessPayload,
+} from './middleware';
 
 export interface UserState {
     current: User | null;
@@ -31,15 +33,22 @@ const userSlice = createSlice({
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     login(_, action: PayloadAction<LoginStartPayload>) {},
-    logout(state) {
+    logout() {},
+    logoutSuccess(state) {
       // eslint-disable-next-line no-param-reassign
       state.current = null;
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    edit(_, action: PayloadAction<EditStartPayload>) {},
+    editSuccess(state, action: PayloadAction<EditSuccessPayload>) {
+      // eslint-disable-next-line no-param-reassign
+      state.current = action.payload.user;
     },
   },
 });
 
 export const {
-  fetch, fetchSuccess, register, registerSuccess, login, logout,
+  fetch, fetchSuccess, register, registerSuccess, login, logout, logoutSuccess, edit, editSuccess,
 } = userSlice.actions;
 
 export type UserActionType = SliceActionType<typeof userSlice.actions>;
