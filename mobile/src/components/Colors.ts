@@ -5,8 +5,9 @@ const Colors = {
   accentColor: '#FDCD93',
 
   black: '#000',
+  white: '#fff',
   placeholderColor: '#C2BDAF',
-  errorColor: '#F44336',
+  errorColor: '#A50104',
 };
 
 export default Colors;

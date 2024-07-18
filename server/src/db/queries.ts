@@ -66,3 +66,8 @@ export function selectQuery<S extends Schema>(schema: S, options?: SelectOptions
     whereString ? ` ${whereString}` : ''}${
     orderString ? `${orderString}` : ''}`;
 }
+
+export function deleteQuery<S extends Schema>(schema: S, where?: WhereExp<S>) {
+  const whereString = where ? formatWhereQuery(where, schema) : '';
+  return `DELETE FROM ${schema.tableName}${whereString ? ` ${whereString}` : ''} RETURNING *`;
+}

@@ -7,7 +7,9 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { calculateEndDate, Medication } from '@common/models/shared/Medication';
 import { AppDispatch, AppState } from '@store/ReduxStore';
-import { create as createMedication, getMedicationById, update as updateMedication } from '@store/medication/reducer';
+import {
+  create as createMedication, getMedicationById, update as updateMedication, deleteMedication,
+} from '@store/medication/reducer';
 import { ServiceState } from '@store/service/reducer';
 import { CreateStartPayload } from '@store/medication/middleware';
 // eslint-disable-next-line import/no-cycle
@@ -141,6 +143,12 @@ const AddEditMedication: FunctionComponent<MedicationsScreenProps<'AddEditMedica
     }
   };
 
+  const handleDelete = () => {
+    if (route.params.id) {
+      dispatch(deleteMedication({ id: route.params.id }));
+    }
+  };
+
   useEffect(() => {
     if (prevIsFetching === true && !serviceState.isFetching && serviceState.error === null) {
       navigation.navigate('Medications');
@@ -266,9 +274,20 @@ const AddEditMedication: FunctionComponent<MedicationsScreenProps<'AddEditMedica
                         </Text>
                     </View>
                 </View>
-                <TouchableOpacity style={Styles.submitButton} onPress={handleSubmit}>
-                    <Text style={Styles.submitButtonText}>{route.params.id ? 'Save' : 'Create'}</Text>
-                </TouchableOpacity>
+                <View style={Styles.buttonsWrapper}>
+                    <TouchableOpacity
+                        style={[Styles.actionButton, Styles.submitButton]}
+                        onPress={handleSubmit}
+                    >
+                        <Text style={Styles.submitButtonText}>{route.params.id ? 'Save' : 'Create'}</Text>
+                    </TouchableOpacity>
+                    {route.params.id && <TouchableOpacity
+                        style={[Styles.actionButton, Styles.deleteButton]}
+                        onPress={handleDelete}
+                    >
+                        <Text style={Styles.deleteButtonText}>Delete</Text>
+                    </TouchableOpacity>}
+                </View>
             </View>
         </ScrollView>
     </SafeAreaView>

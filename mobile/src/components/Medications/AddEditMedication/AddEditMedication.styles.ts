@@ -3,12 +3,37 @@ import { StyleSheet } from 'react-native';
 import Colors from '@components/Colors.ts';
 
 const styles = StyleSheet.create({
+  actionButton: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    padding: 10,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
   addEditRoot: {
     backgroundColor: Colors.backgroundColor,
     flex: 1,
   },
+  buttonsWrapper: {
+    columnGap: 16,
+    flexDirection: 'row',
+    marginTop: 16,
+  },
   datePickerTextPlaceholder: {
     color: Colors.placeholderColor,
+  },
+  deleteButton: {
+    backgroundColor: Colors.errorColor,
+  },
+  deleteButtonText: {
+    color: Colors.white,
+    fontSize: 20,
   },
   fieldError: {
     color: Colors.errorColor,
@@ -38,18 +63,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   submitButton: {
-    alignItems: 'center',
     backgroundColor: Colors.accentColor,
-    justifyContent: 'center',
-    marginTop: 16,
-    padding: 10,
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
   },
   submitButtonText: {
     color: Colors.secondaryColor,

@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import * as yup from 'yup';
 
-import { createMedication, getAllMedications, updateMedication } from '@repository/medication';
+import {
+  createMedication, deleteMedication, getAllMedications, updateMedication,
+} from '@repository/medication';
 import { calculateEndDate } from '@common/models/shared/Medication';
 import { authMiddleware } from './utils/auth';
 import { NotFoundError } from './utils/errors';
@@ -47,6 +49,10 @@ const updateSchema = yup.object({
       return !destinationCount || !this.parent.count || destinationCount >= this.parent.count;
     }),
   startDate: yup.string(),
+});
+
+const deleteSchema = yup.object({
+  id: yup.number().required(),
 });
 
 router.post('/', authMiddleware, async (req, res, next) => {
@@ -102,6 +108,17 @@ router.get('/', authMiddleware, async (req, res, next) => {
     const medications = await getAllMedications(req.user);
 
     res.send(medications);
+  } catch (err: unknown) {
+    next(err);
+  }
+});
+
+router.delete('/:id', authMiddleware, async (req, res, next) => {
+  try {
+    const data = await deleteSchema.validate(req.params);
+    const medication = await deleteMedication(data.id);
+
+    res.send(medication);
   } catch (err: unknown) {
     next(err);
   }

@@ -1,7 +1,9 @@
 import { Medication } from '@common/models/shared/Medication';
 import { User } from '@common/models/shared/User';
 import getClient from '@db/client';
-import { insertQuery, selectQuery, updateQuery } from '@db/queries';
+import {
+  deleteQuery, insertQuery, selectQuery, updateQuery,
+} from '@db/queries';
 import { eq } from '@db/where';
 import { desc } from '@db/order';
 import { DBMedication, medicationSchema } from '@db/scheme/Medication';
@@ -47,4 +49,13 @@ export async function getAllMedications(user: User): Promise<Medication[]> {
   );
 
   return rawMedications.rows.map(dbMedicationToMedication);
+}
+
+export async function deleteMedication(medicationId: number): Promise<Medication> {
+  const dbClient = await getClient();
+  const medicationResult = await dbClient.query<DBMedication>(
+    deleteQuery(medicationSchema, eq('id', medicationId)),
+  );
+
+  return dbMedicationToMedication(medicationResult.rows[0]);
 }

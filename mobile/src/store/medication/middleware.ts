@@ -8,7 +8,12 @@ import { requestWrap } from '../service/wrappers';
 import { AppState } from '../ReduxStore';
 // eslint-disable-next-line import/no-cycle
 import {
-  createSuccess, fetchAllSuccess, updateSuccess, update as updateStart, getMedicationById,
+  createSuccess,
+  fetchAllSuccess,
+  updateSuccess,
+  update as updateStart,
+  getMedicationById,
+  deleteSuccess,
 } from './reducer';
 import BackendApi from '../../api/BackendApi';
 
@@ -116,6 +121,25 @@ const fetchAll = (api: BackendApi) => actionMiddleware(
   },
 );
 
+export type DeleteStartPayload = { id: number };
+
+export interface DeleteSuccessPayload {
+    medication: Medication;
+}
+
+const deleteMedication = (api: BackendApi) => actionMiddleware(
+  'medication',
+  'deleteMedication',
+  (storeApi, action) => {
+    requestWrap(storeApi, async () => {
+      const result = await api.delete<MedicationResponse>({ url: `/medications/${action.payload.id}` });
+
+      storeApi.dispatch(deleteSuccess({ medication: parseMedication(result) }));
+    });
+    return action;
+  },
+);
+
 const getMedicationMiddlewares = (api: BackendApi) => [
     // eslint-disable-next-line @typescript-eslint/ban-types
     create(api) as Middleware<{}, AppState>,
@@ -127,6 +151,8 @@ const getMedicationMiddlewares = (api: BackendApi) => [
     decrementCount as Middleware<{}, AppState>,
     // eslint-disable-next-line @typescript-eslint/ban-types
     fetchAll(api) as Middleware<{}, AppState>,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    deleteMedication(api) as Middleware<{}, AppState>,
 ];
 
 export default getMedicationMiddlewares;

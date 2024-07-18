@@ -94,4 +94,6 @@ export default class BackendApi {
   post = <T>(data: FullRequest, contentType: ContentType = 'json') => this.request<T>('POST', contentType, data);
 
   put = <T>(data: FullRequest, contentType: ContentType = 'json') => this.request<T>('PUT', contentType, data);
+
+  delete = <T>(data: FetchingRequest) => this.request<T>('DELETE', null, data);
 }

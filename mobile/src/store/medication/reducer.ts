@@ -8,6 +8,8 @@ import {
   ChangeCountStartPayload,
   CreateStartPayload,
   CreateSuccessPayload,
+  DeleteStartPayload,
+  DeleteSuccessPayload,
   FetchAllSuccessPayload,
   UpdateStartPayload,
 } from './middleware';
@@ -61,6 +63,12 @@ const medicationSlice = createSlice({
     incrementCount(_, action: PayloadAction<ChangeCountStartPayload>) {},
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     decrementCount(_, action: PayloadAction<ChangeCountStartPayload>) {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    deleteMedication(_, action: PayloadAction<DeleteStartPayload>) {},
+    deleteSuccess(state, action: PayloadAction<DeleteSuccessPayload>) {
+      // eslint-disable-next-line no-param-reassign
+      delete state.medications[getMedicationKey(action.payload.medication.id)];
+    },
   },
 });
 
@@ -73,6 +81,8 @@ export const {
   updateSuccess,
   incrementCount,
   decrementCount,
+  deleteMedication,
+  deleteSuccess,
 } = medicationSlice.actions;
 
 export type MedicationActionType = SliceActionType<typeof medicationSlice.actions>;
