@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from 'react';
+import { TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { CompositeScreenProps, NavigationContainer, NavigatorScreenParams } from '@react-navigation/native';
 import type { StackScreenProps } from '@react-navigation/stack';
@@ -12,6 +13,11 @@ import Login from '@components/Login/Login';
 import Medications from '@components/Medications/Medications';
 // eslint-disable-next-line import/no-cycle
 import AddEditMedication from '@components/Medications/AddEditMedication/AddEditMedication';
+// eslint-disable-next-line import/no-cycle
+import Profile from '@components/Profile/Profile';
+// eslint-disable-next-line import/no-cycle
+import EditProfile from '@components/Profile/EditProfile/EditProfile';
+import EditIcon from '@icons/edit.svg';
 import Colors from '@components/Colors';
 
 import Styles from './Router.styles';
@@ -21,8 +27,14 @@ type MedicationsParamList = {
     AddEditMedication: { id?: number };
 }
 
+type ProfileParamList = {
+    Profile: undefined;
+    EditProfile: undefined;
+}
+
 type RootStackParamList = {
     MedicationsTab: NavigatorScreenParams<MedicationsParamList>;
+    ProfileTab: NavigatorScreenParams<ProfileParamList>;
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =
@@ -34,10 +46,17 @@ export type MedicationsScreenProps<T extends keyof MedicationsParamList> =
         RootStackScreenProps<keyof RootStackParamList>
     >;
 
+export type ProfileScreenProps<T extends keyof ProfileParamList> =
+    CompositeScreenProps<
+        BottomTabScreenProps<ProfileParamList, T>,
+        RootStackScreenProps<keyof RootStackParamList>
+    >;
+
 const Tab = createBottomTabNavigator<RootStackParamList>();
 const MedicationsStack = createNativeStackNavigator<MedicationsParamList>();
+const ProfileStack = createNativeStackNavigator<ProfileParamList>();
 
-const MedicationsScreen: FunctionComponent = () => (
+const MedicationsScreen: FunctionComponent<RootStackScreenProps<'MedicationsTab'>> = () => (
     <MedicationsStack.Navigator screenOptions={{
       headerStyle: Styles.header,
       headerTintColor: Colors.backgroundColor,
@@ -50,10 +69,43 @@ const MedicationsScreen: FunctionComponent = () => (
         <MedicationsStack.Screen
             name="AddEditMedication"
             component={AddEditMedication}
-            options={{ title: 'Add Medication' }}
+            options={{ title: 'Edit Medication' }}
         />
     </MedicationsStack.Navigator>
 );
+
+const EditButton = ({ onPress }: { onPress: () => void }) => (
+    <TouchableOpacity onPress={onPress}>
+        <EditIcon width={24} height={24} stroke={Colors.backgroundColor}/>
+    </TouchableOpacity>
+);
+
+const ProfileScreen: FunctionComponent<RootStackScreenProps<'ProfileTab'>> = ({ navigation }) => {
+  const handleEditPress = () => {
+    navigation.navigate('ProfileTab', { screen: 'EditProfile' });
+  };
+
+  return (
+    <ProfileStack.Navigator screenOptions={{
+      headerStyle: Styles.header,
+      headerTintColor: Colors.backgroundColor,
+    }}>
+        <ProfileStack.Screen
+            name="Profile"
+            component={Profile}
+            options={{
+              title: 'Your Profile',
+              headerRight: () => <EditButton onPress={handleEditPress} />,
+            }}
+        />
+        <ProfileStack.Screen
+            name="EditProfile"
+            component={EditProfile}
+            options={{ title: 'Edit Profile' }}
+        />
+    </ProfileStack.Navigator>
+  );
+};
 
 const Router: FunctionComponent = () => {
   const user = useSelector<AppState, User | null>((state) => state.user.current);
@@ -70,7 +122,8 @@ const Router: FunctionComponent = () => {
               tabBarInactiveTintColor: Colors.backgroundColor,
               tabBarLabelStyle: Styles.tabBarLabel,
             }}>
-                <Tab.Screen name="MedicationsTab" component={MedicationsScreen} options={{ title: 'Medications' }} />
+                <Tab.Screen name="MedicationsTab" component={MedicationsScreen} options={{ title: 'Medications' }}/>
+                <Tab.Screen name="ProfileTab" component={ProfileScreen} options={{ title: 'Profile' }}/>
             </Tab.Navigator>
         )}
     </NavigationContainer>
