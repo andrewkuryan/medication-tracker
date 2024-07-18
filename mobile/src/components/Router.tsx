@@ -18,6 +18,8 @@ import Profile from '@components/Profile/Profile';
 // eslint-disable-next-line import/no-cycle
 import EditProfile from '@components/Profile/EditProfile/EditProfile';
 import EditIcon from '@icons/edit.svg';
+import MedicationIcon from '@icons/medication.svg';
+import ProfileIcon from '@icons/profile.svg';
 import Colors from '@components/Colors';
 
 import Styles from './Router.styles';
@@ -115,13 +117,21 @@ const Router: FunctionComponent = () => {
         {user == null ? (
             <Login/>
         ) : (
-            <Tab.Navigator screenOptions={{
+            <Tab.Navigator screenOptions={({ route }) => ({
               headerShown: false,
               tabBarStyle: Styles.tabBar,
               tabBarActiveTintColor: Colors.accentColor,
               tabBarInactiveTintColor: Colors.backgroundColor,
               tabBarLabelStyle: Styles.tabBarLabel,
-            }}>
+              tabBarIcon: ({ color }) => {
+                if (route.name === 'MedicationsTab') {
+                  return <MedicationIcon width={22} height={22} stroke={color} />;
+                } if (route.name === 'ProfileTab') {
+                  return <ProfileIcon width={18} height={18} fill={color} />;
+                }
+                return <></>;
+              },
+            })}>
                 <Tab.Screen name="MedicationsTab" component={MedicationsScreen} options={{ title: 'Medications' }}/>
                 <Tab.Screen name="ProfileTab" component={ProfileScreen} options={{ title: 'Profile' }}/>
             </Tab.Navigator>
