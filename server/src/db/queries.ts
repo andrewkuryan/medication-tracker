@@ -39,16 +39,34 @@ export function insertQuery<S extends Schema>(schema: S, data: InsertSchemaType<
   return `INSERT INTO ${schema.tableName} (${columnNames}) VALUES (${columnValues}) RETURNING *`;
 }
 
+interface UpdateOptions<S extends Schema> {
+  where?: WhereExp<S>,
+  join?: JoinQuery<S>[]
+}
+
 export function updateQuery<S extends Schema>(
   schema: S,
   data: Partial<SchemaType<S>>,
-  where?: WhereExp<S>,
+  options?: UpdateOptions<S>,
 ) {
   const columns = Object.entries(data)
     .filter((entry) => entry[1] !== undefined)
     .map(([key, value]) => `${key} = ${serializeValue(value)}`).join(', ');
-  const whereString = where ? formatWhereQuery(where, schema) : '';
-  return `UPDATE ${schema.tableName} SET ${columns}${whereString ? ` ${whereString}` : ''} RETURNING *`;
+
+  const schemaAlias = options?.join ? `_${schema.tableName}` : undefined;
+  const joinString = options?.join
+    ? options.join.map((it) => formatJoin(schema, it, schemaAlias)).join(' ')
+    : '';
+  const returningString = [
+    schema.tableName,
+    ...(options?.join ? options.join.map((it) => it.target.tableName) : []),
+  ].map((it) => `${it}.*`).join(',');
+  const fromString = joinString ? `FROM ${schema.tableName} ${schemaAlias} ${joinString}` : '';
+
+  const whereString = options?.where ? formatWhereQuery(options.where, schema, schemaAlias) : '';
+  return `UPDATE ${schema.tableName} SET ${columns}${
+    fromString ? ` ${fromString}` : ''}${
+    whereString ? ` ${whereString}` : ''} RETURNING ${returningString}`;
 }
 
 interface SelectOptions<S extends Schema> {

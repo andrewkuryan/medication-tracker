@@ -33,7 +33,9 @@ export async function updateMedication(
 ): Promise<Medication> {
   const dbClient = await getClient();
   const medicationResult = await dbClient.query<DBMedication>(
-    updateQuery(medicationSchema, medicationToMedicationUpdate(newData), eq('id', medicationId)),
+    updateQuery(medicationSchema, medicationToMedicationUpdate(newData), {
+      where: eq('id', medicationId),
+    }),
   );
 
   return dbMedicationToMedication(medicationResult.rows[0]);

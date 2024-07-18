@@ -32,13 +32,28 @@ export function dbUserToUser(user: DBUser & DBUserCredentials): User {
     id: user.id,
     data: {
       email: user.email,
+      gender: user.gender,
+      birthDate: user.birth_date ? new Date(user.birth_date) : null,
     },
     credentials: dbCredentialsToCredentials(user),
   };
 }
 
+export type UserUpdateData = Partial<UserData>
+
+export function userToUserUpdate(userData: UserUpdateData): Partial<DBUser> {
+  return {
+    gender: userData.gender,
+    birth_date: userData.birthDate ? userData.birthDate.toISOString() : null,
+  };
+}
+
 export function userToDBUser(userData: UserData): DBUserInsert {
-  return { email: userData.email };
+  return {
+    email: userData.email,
+    gender: userData.gender,
+    birth_date: userData.birthDate ? userData.birthDate.toISOString() : null,
+  };
 }
 
 export function dbSessionJoinedToSession(session: DBSession & DBUser & DBUserCredentials): Session {

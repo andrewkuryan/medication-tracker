@@ -25,17 +25,25 @@ export function eq<S extends Schema, K extends keyof S['columns']>(column: K, va
   return { column, operator: '=', value };
 }
 
-function formatWhereCondition<S extends Schema, K extends keyof S['columns']>(cond: WhereCondition<S, K>, schema: S) {
-  return `${schema.tableName}.${String(cond.column)} ${cond.operator} ${escapeLiteral(`${cond.value}`)}`;
+function formatWhereCondition<S extends Schema, K extends keyof S['columns']>(cond: WhereCondition<S, K>, schema: S, schemaAlias?: string) {
+  return `${schemaAlias ?? schema.tableName}.${String(cond.column)} ${cond.operator} ${escapeLiteral(`${cond.value}`)}`;
 }
 
-function formatWhereExp<S extends Schema>(exp: WhereExp<S>, schema: S): string {
+function formatWhereExp<S extends Schema>(
+  exp: WhereExp<S>,
+  schema: S,
+  schemaAlias?: string,
+): string {
   if ('exp1' in exp) {
-    return `${formatWhereExp(exp.exp1, schema)} ${exp.operator} ${formatWhereExp(exp.exp2, schema)}`;
+    return `${formatWhereExp(exp.exp1, schema, schemaAlias)} ${exp.operator} ${formatWhereExp(exp.exp2, schema, schemaAlias)}`;
   }
-  return formatWhereCondition(exp, schema);
+  return formatWhereCondition(exp, schema, schemaAlias);
 }
 
-export function formatWhereQuery<S extends Schema>(exp: WhereExp<S>, schema: S) {
-  return `WHERE ${formatWhereExp(exp, schema)}`;
+export function formatWhereQuery<S extends Schema>(
+  exp: WhereExp<S>,
+  schema: S,
+  schemaAlias?: string,
+) {
+  return `WHERE ${formatWhereExp(exp, schema, schemaAlias)}`;
 }

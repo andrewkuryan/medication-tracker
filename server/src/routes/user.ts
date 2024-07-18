@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as yup from 'yup';
 
-import { createUser, getUserByEmail } from '@repository/user';
+import { createUser, getUserByEmail, updateUser } from '@repository/user';
 import { User } from '@common/models/shared/User';
 import { NotFoundError } from './utils/errors';
 import { authMiddleware, buildSession } from './utils/auth';
@@ -19,11 +19,16 @@ const registerBodySchema = yup.object({
   publicKeyHex: yup.string().required(),
 });
 
-const loginSchema = yup.object({
+const loginBodySchema = yup.object({
   user: yup.object({
     email: yup.string().required(),
   }).required(),
   publicKeyHex: yup.string().required(),
+});
+
+const updateBodySchema = yup.object({
+  gender: yup.string().nullable().default(null),
+  birthDate: yup.string().nullable().default(null),
 });
 
 function serializeRegisterRes(user: User, sessionId: number, publicKey: bigint) {
@@ -48,7 +53,10 @@ router.get('/me', authMiddleware, async (req, res, next) => {
 router.post('/register', async (req, res, next) => {
   try {
     const data = await registerBodySchema.validate(req.body);
-    const user = await createUser(data.user, data.credentials);
+    const user = await createUser(
+      { ...data.user, birthDate: null, gender: null },
+      data.credentials,
+    );
 
     const verifier = BigInt(`0x${data.credentials.verifierHex}`);
     const { publicKey, privateKey } = req.srpGenerator.generateKeys(verifier);
@@ -63,7 +71,7 @@ router.post('/register', async (req, res, next) => {
 
 router.post('/login', async (req, res, next) => {
   try {
-    const data = await loginSchema.validate(req.body);
+    const data = await loginBodySchema.validate(req.body);
 
     const user = await getUserByEmail(data.user.email);
     if (!user) {
@@ -75,6 +83,21 @@ router.post('/login', async (req, res, next) => {
     const session = await buildSession(req.srpGenerator, user, req.useragent, BigInt(`0x${data.publicKeyHex}`), publicKey, privateKey);
 
     res.json(serializeLoginRes(user.credentials.data.salt, publicKey, session.id));
+  } catch (err: unknown) {
+    next(err);
+  }
+});
+
+router.put('/me', authMiddleware, async (req, res, next) => {
+  try {
+    if (!req.user) {
+      throw new NotFoundError('User', 'me');
+    }
+    const data = await updateBodySchema.validate(req.body);
+    const birthDate = data.birthDate ? new Date(data.birthDate) : null;
+    const user = await updateUser(req.user.id, { ...data, birthDate });
+
+    res.send(user);
   } catch (err: unknown) {
     next(err);
   }

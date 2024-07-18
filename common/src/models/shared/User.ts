@@ -10,6 +10,8 @@ export interface UserCredentials {
 
 export interface UserData {
     email: string;
+    gender: string | null;
+    birthDate: Date | null;
 }
 
 export interface User {

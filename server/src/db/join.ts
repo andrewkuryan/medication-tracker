@@ -16,6 +16,6 @@ export function leftJoin<L extends Schema, R extends Schema>(target: R, sourceCo
   };
 }
 
-export function formatJoin<S extends Schema>(source: S, join: JoinQuery<S>) {
-  return `${join.type} JOIN ${join.target.tableName} ON ${source.tableName}.${String(join.sourceCol)} = ${join.target.tableName}.${String(join.targetCol)}`;
+export function formatJoin<S extends Schema>(source: S, join: JoinQuery<S>, schemaAlias?: string) {
+  return `${join.type} JOIN ${join.target.tableName} ON ${schemaAlias ?? source.tableName}.${String(join.sourceCol)} = ${join.target.tableName}.${String(join.targetCol)}`;
 }

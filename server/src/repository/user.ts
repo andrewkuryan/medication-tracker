@@ -1,7 +1,7 @@
 import { UserData, UserCredentialsData, User } from '@common/models/shared/User';
 import { Session, SessionData } from '@common/models/server/Session';
 import getClient from '@db/client';
-import { insertQuery, selectQuery } from '@db/queries';
+import { insertQuery, selectQuery, updateQuery } from '@db/queries';
 import {
   DBSession, DBUser, DBUserCredentials, sessionSchema, userCredentialsSchema, userSchema,
 } from '@db/scheme/User';
@@ -14,6 +14,8 @@ import {
   dbUserToUser,
   sessionToDBSession,
   userToDBUser,
+  userToUserUpdate,
+  UserUpdateData,
 } from '@repository/converters/user';
 
 export async function createUser(
@@ -41,6 +43,20 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   }));
 
   return result.rows[0] ? dbUserToUser(result.rows[0]) : null;
+}
+
+export async function updateUser(userId: number, newData: UserUpdateData): Promise<User> {
+  const dbClient = await getClient();
+  const result = await dbClient.query<DBUser & DBUserCredentials>(updateQuery(
+    userSchema,
+    userToUserUpdate(newData),
+    {
+      where: eq('id', userId),
+      join: [leftJoin(userCredentialsSchema, 'id', 'user_id')],
+    },
+  ));
+
+  return dbUserToUser(result.rows[0]);
 }
 
 export async function createSession(user: User, data: SessionData) {
