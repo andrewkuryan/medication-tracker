@@ -36,3 +36,22 @@ export function validator<T>(config: ValidatorConfig<T>): Validator<T> {
       return fieldResult ? { ...acc, [key]: fieldResult } : acc;
     }, {} as ErrorsObject<T>);
 }
+
+export const numberValidator = (value: number | undefined) => (
+  (value === undefined || Number.isNaN(value)) ? 'Should be a number' : undefined
+);
+export const gteValidator = (
+  value: number | undefined,
+  min: number,
+  minParamName?: string,
+) => ((value === undefined || value < min) ? `Should be not less than ${minParamName ?? min}` : undefined);
+export const gtValidator = (
+  value: number | undefined,
+  min: number,
+  minParamName?: string,
+) => ((value === undefined || value <= min) ? `Should be greater than ${minParamName ?? min}` : undefined);
+export const lteValidator = (
+  value: number | undefined,
+  max: number,
+  maxParamName?: string,
+) => ((value === undefined || value > max) ? `Should be not greater than ${maxParamName ?? max}` : undefined);

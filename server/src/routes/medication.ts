@@ -14,8 +14,8 @@ const createBodySchema = yup.object({
   name: yup.string().required(),
   description: yup.string().nullable().default(null),
   frequency: yup.object({
-    amount: yup.number().required(),
-    days: yup.number().required(),
+    amount: yup.number().required().moreThan(0),
+    days: yup.number().required().moreThan(0),
   }).required(),
   count: yup.number().required()
     .min(0)
@@ -35,8 +35,8 @@ const updateSchema = yup.object({
   name: yup.string(),
   description: yup.string().nullable().default(null),
   frequency: yup.object({
-    amount: yup.number(),
-    days: yup.number(),
+    amount: yup.number().moreThan(0),
+    days: yup.number().moreThan(0),
   }),
   count: yup.number()
     .min(0)

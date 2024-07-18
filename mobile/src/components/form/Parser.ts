@@ -42,3 +42,6 @@ export function parser<T, M extends FormModel<T>>(config: ParserConfig<T, M>): P
   return (model) => (Object.keys(config) as (keyof T)[])
     .reduce((acc, key) => ({ ...acc, [key]: config[key](model[key]) }), {} as NullableObject<T>);
 }
+
+export const intParser = (value: string) => parseInt(value, 10);
+export const numberParser = (value: string) => parseFloat(value);

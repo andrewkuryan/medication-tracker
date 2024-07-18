@@ -49,12 +49,23 @@ const styles = StyleSheet.create({
     padding: 30,
     rowGap: 22,
   },
+  frequencyFieldLabel: {
+    color: Colors.secondaryColor,
+    fontSize: 16,
+  },
   frequencyFieldWrapper: {
     flex: 0.5,
   },
-  frequencyWrapper: {
-    columnGap: 20,
+  frequencyFields: {
+    columnGap: 10,
     flexDirection: 'row',
+  },
+  frequencyWrapper: {
+    borderColor: Colors.primaryColor,
+    borderRadius: 10,
+    borderWidth: 2,
+    padding: 10,
+    rowGap: 12,
   },
   inputField: {
     borderColor: Colors.primaryColor,

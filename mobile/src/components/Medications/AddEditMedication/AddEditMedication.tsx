@@ -15,8 +15,18 @@ import { CreateStartPayload } from '@store/medication/middleware';
 // eslint-disable-next-line import/no-cycle
 import { MedicationsScreenProps } from '@components/Router.tsx';
 import usePrevious from '@components/hooks/usePrevious';
-import { isDefinedObject, parser, ParserConfig } from '@components/form/Parser';
-import { ErrorsObject, validator, ValidatorConfig } from '@components/form/Validator';
+import {
+  isDefinedObject, intParser, parser, ParserConfig, numberParser,
+} from '@components/form/Parser';
+import {
+  ErrorsObject,
+  gteValidator,
+  gtValidator,
+  lteValidator,
+  numberValidator,
+  validator,
+  ValidatorConfig,
+} from '@components/form/Validator';
 
 import Styles from './AddEditMedication.styles';
 
@@ -32,32 +42,32 @@ interface AddEditForm {
     startDate: Date | null;
 }
 
-const numberParser = (value: string) => parseInt(value, 10);
-
 const parserConfig: ParserConfig<CreateStartPayload, AddEditForm> = {
   name: (value) => value || undefined,
   description: (value) => value || null,
-  frequency: parser({
-    amount: numberParser,
-    days: numberParser,
-  }),
-  count: numberParser,
-  destinationCount: numberParser,
+  frequency: parser({ amount: numberParser, days: numberParser }),
+  count: intParser,
+  destinationCount: intParser,
   startDate: (value) => value ?? undefined,
 };
 
-const numberValidator = (value: number | undefined) => ((value === undefined || Number.isNaN(value)) ? 'Should be a number' : undefined);
-const frequencyValidator = validator({ amount: numberValidator, days: numberValidator });
+const frequencyValidator = validator({
+  amount: (value: number | undefined) => numberValidator(value) ?? gtValidator(value, 0),
+  days: (value: number | undefined) => numberValidator(value) ?? gtValidator(value, 0),
+});
 const countValidator = (
   value: number | undefined,
   { destinationCount }: { destinationCount: number | undefined },
-) => (numberValidator(value) ?? (value ?? 0) < 0 ? 'Should be not less than 0'
-  : ((value ?? 0) > (destinationCount ?? 0) ? 'Should be not greater than Destination Count' : undefined));
+) => (numberValidator(value)
+    ?? gteValidator(value, 0)
+    ?? lteValidator(value, destinationCount ?? 0, 'Destination Count'));
 const destinationCountValidator = (
   value: number | undefined,
   { count }: { count: number | undefined },
-) => (numberValidator(value) ?? (value ?? 0) < 1 ? 'Should be not less than 1'
-  : ((value ?? 0) < (count ?? 0) ? 'Should be not less than Count' : undefined));
+) => (numberValidator(value)
+    ?? gteValidator(value, 1)
+    ?? gteValidator(value, count ?? 0, 'Count'));
+
 const startDateValidator = (value: Date | undefined) => (!value ? 'Should not be empty' : undefined);
 
 const validatorConfig: ValidatorConfig<CreateStartPayload> = {
@@ -180,28 +190,31 @@ const AddEditMedication: FunctionComponent<MedicationsScreenProps<'AddEditMedica
                     />
                 </View>
                 <View style={Styles.frequencyWrapper}>
-                    <View style={[Styles.fieldWrapper, Styles.frequencyFieldWrapper]}>
-                        <Text style={Styles.fieldLabel}>Amount*</Text>
-                        <TextInput
-                            style={[Styles.inputField, Styles.textInputField]}
-                            keyboardType="numeric"
-                            value={amount}
-                            onChangeText={setAmount}
-                        />
-                        {errors.frequency?.amount && <Text style={Styles.fieldError}>
-                            {errors.frequency?.amount}
-                        </Text>}
-                    </View>
-                    <View style={[Styles.fieldWrapper, Styles.frequencyFieldWrapper]}>
-                        <Text style={Styles.fieldLabel}>Days*</Text>
-                        <TextInput
-                            style={[Styles.inputField, Styles.textInputField]}
-                            keyboardType="numeric"
-                            value={days}
-                            onChangeText={setDays}
-                        />
-                        {errors.frequency?.days
-                            && <Text style={Styles.fieldError}>{errors.frequency?.days}</Text>}
+                    <Text style={Styles.fieldLabel}>Frequency*</Text>
+                    <View style={Styles.frequencyFields}>
+                        <View style={[Styles.fieldWrapper, Styles.frequencyFieldWrapper]}>
+                            <Text style={Styles.frequencyFieldLabel}>Amount</Text>
+                            <TextInput
+                                style={[Styles.inputField, Styles.textInputField]}
+                                keyboardType="numeric"
+                                value={amount}
+                                onChangeText={setAmount}
+                            />
+                            {errors.frequency?.amount && <Text style={Styles.fieldError}>
+                                {errors.frequency?.amount}
+                            </Text>}
+                        </View>
+                        <View style={[Styles.fieldWrapper, Styles.frequencyFieldWrapper]}>
+                            <Text style={Styles.frequencyFieldLabel}>Days</Text>
+                            <TextInput
+                                style={[Styles.inputField, Styles.textInputField]}
+                                keyboardType="numeric"
+                                value={days}
+                                onChangeText={setDays}
+                            />
+                            {errors.frequency?.days
+                                && <Text style={Styles.fieldError}>{errors.frequency?.days}</Text>}
+                        </View>
                     </View>
                 </View>
                 <View style={Styles.fieldWrapper}>
