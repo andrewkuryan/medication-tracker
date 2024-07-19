@@ -1,5 +1,6 @@
 import React, { FunctionComponent, memo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
 
 import { Medication } from '@common/models/shared/Medication';
 import Colors from '@components/Colors';
@@ -29,6 +30,13 @@ const MedicationItem: FunctionComponent<MedicationItemProps> = ({
   medication, onPress, onIncCount, onDecCount,
 }) => {
   const isFulfilled = medication.data.count === medication.data.destinationCount;
+  const progress = medication.data.count / medication.data.destinationCount;
+
+  const progressValue = useDerivedValue(() => withTiming(progress));
+
+  const rStyle = useAnimatedStyle(() => ({
+    flex: progressValue.value,
+  }));
 
   const handlePress = () => {
     onPress(medication.id);
@@ -73,13 +81,10 @@ const MedicationItem: FunctionComponent<MedicationItemProps> = ({
         </View>
         <View style={Styles.progressBlock}>
             <Text style={Styles.progressText}>
-                {formatProgress(medication.data.count / medication.data.destinationCount)}
+                {formatProgress(progress)}
             </Text>
             <View style={Styles.progressWrapper}>
-                <View style={[
-                  Styles.progressBar,
-                  { flex: medication.data.count / medication.data.destinationCount },
-                ]}/>
+                <Animated.View style={[Styles.progressBar, rStyle]}/>
             </View>
         </View>
     </TouchableOpacity>

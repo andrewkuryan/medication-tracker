@@ -27,11 +27,11 @@ const InputField: FunctionComponent<InputFieldProps> = ({
   value, onChangeValue, type = 'text', placeholder, inputStyle,
 }) => {
   const [isFocused, setFocused] = React.useState(false);
-  const progress = useDerivedValue(() => withTiming(isFocused ? 1 : 0));
+  const focusedValue = useDerivedValue(() => withTiming(isFocused ? 1 : 0));
 
   const rStyle = useAnimatedStyle(() => {
     const borderColor = interpolateColor(
-      progress.value,
+      focusedValue.value,
       [0, 1],
       [Colors.primaryColor, Colors.accentColor],
     );
