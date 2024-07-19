@@ -25,6 +25,9 @@ export const catchWrap = <T>(
         error: err.message ?? 'Something went wrong',
         code: err instanceof ApiError ? err.code : null,
       }));
+      setTimeout(() => {
+        storeApi.dispatch(resetError());
+      }, 3000);
       return null;
     });
 

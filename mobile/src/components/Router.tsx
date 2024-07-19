@@ -17,6 +17,7 @@ import AddEditMedication from '@components/Medications/AddEditMedication/AddEdit
 import Profile from '@components/Profile/Profile';
 // eslint-disable-next-line import/no-cycle
 import EditProfile from '@components/Profile/EditProfile/EditProfile';
+import ErrorPanel from '@components/ErrorPanel/ErrorPanel';
 import EditIcon from '@icons/edit.svg';
 import MedicationIcon from '@icons/medication.svg';
 import ProfileIcon from '@icons/profile.svg';
@@ -136,6 +137,7 @@ const Router: FunctionComponent = () => {
                 <Tab.Screen name="ProfileTab" component={ProfileScreen} options={{ title: 'Profile' }}/>
             </Tab.Navigator>
         )}
+        <ErrorPanel />
     </NavigationContainer>
   );
 };
