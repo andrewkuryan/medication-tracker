@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
   },
   itemRoot: {
     backgroundColor: Colors.backgroundColor,
+    elevation: 4,
     padding: 12,
     rowGap: 7,
     shadowColor: Colors.black,

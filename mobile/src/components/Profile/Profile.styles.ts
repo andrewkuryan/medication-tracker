@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
   logoutButton: {
     alignItems: 'center',
     backgroundColor: Colors.errorColor,
+    elevation: 4,
     justifyContent: 'center',
     padding: 10,
     shadowColor: Colors.black,

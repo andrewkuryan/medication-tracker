@@ -5,6 +5,7 @@ import Colors from '@components/Colors.ts';
 const styles = StyleSheet.create({
   actionButton: {
     alignItems: 'center',
+    elevation: 4,
     flex: 1,
     justifyContent: 'center',
     padding: 10,

@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import {
-  SafeAreaView, Text, TextInput, TouchableOpacity, View, ScrollView,
+  SafeAreaView, Text, TouchableOpacity, View, ScrollView,
 } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +15,7 @@ import { CreateStartPayload } from '@store/medication/middleware';
 // eslint-disable-next-line import/no-cycle
 import { MedicationsScreenProps } from '@components/Router.tsx';
 import usePrevious from '@components/hooks/usePrevious';
+import TextField from '@components/TextField/TextField';
 import {
   isDefinedObject, intParser, parser, ParserConfig, numberParser,
 } from '@components/form/Parser';
@@ -169,76 +170,47 @@ const AddEditMedication: FunctionComponent<MedicationsScreenProps<'AddEditMedica
     <SafeAreaView style={Styles.addEditRoot}>
         <ScrollView>
             <View style={Styles.formWrapper}>
-                <View style={Styles.fieldWrapper}>
-                    <Text style={Styles.fieldLabel}>Name*</Text>
-                    <TextInput
-                        style={[Styles.inputField, Styles.textInputField]}
-                        value={name}
-                        onChangeText={setName}
-                        autoCapitalize="none"
-                    />
-                    {errors.name && <Text style={Styles.fieldError}>{errors.name}</Text>}
-                </View>
-                <View style={Styles.fieldWrapper}>
-                    <Text style={Styles.fieldLabel}>Description</Text>
-                    <TextInput
-                        style={[Styles.inputField, Styles.textInputField]}
-                        multiline
-                        value={description}
-                        onChangeText={setDescription}
-                        autoCapitalize="none"
-                    />
-                </View>
+                <TextField label="Name" value={name} onChangeValue={setName} required errorText={errors.name} />
+                <TextField label="Description" value={description} onChangeValue={setDescription} />
                 <View style={Styles.frequencyWrapper}>
                     <Text style={Styles.fieldLabel}>Frequency*</Text>
                     <View style={Styles.frequencyFields}>
-                        <View style={[Styles.fieldWrapper, Styles.frequencyFieldWrapper]}>
-                            <Text style={Styles.frequencyFieldLabel}>Amount</Text>
-                            <TextInput
-                                style={[Styles.inputField, Styles.textInputField]}
-                                keyboardType="numeric"
-                                value={amount}
-                                onChangeText={setAmount}
-                            />
-                            {errors.frequency?.amount && <Text style={Styles.fieldError}>
-                                {errors.frequency?.amount}
-                            </Text>}
-                        </View>
-                        <View style={[Styles.fieldWrapper, Styles.frequencyFieldWrapper]}>
-                            <Text style={Styles.frequencyFieldLabel}>Days</Text>
-                            <TextInput
-                                style={[Styles.inputField, Styles.textInputField]}
-                                keyboardType="numeric"
-                                value={days}
-                                onChangeText={setDays}
-                            />
-                            {errors.frequency?.days
-                                && <Text style={Styles.fieldError}>{errors.frequency?.days}</Text>}
-                        </View>
+                        <TextField
+                            style={Styles.frequencyFieldWrapper}
+                            labelStyle={Styles.frequencyFieldLabel}
+                            label="Amount"
+                            type="number"
+                            value={amount}
+                            onChangeValue={setAmount}
+                            errorText={errors.frequency?.amount}
+                        />
+                        <TextField
+                            style={Styles.frequencyFieldWrapper}
+                            labelStyle={Styles.frequencyFieldLabel}
+                            label="Days"
+                            type="number"
+                            value={days}
+                            onChangeValue={setDays}
+                            errorText={errors.frequency?.days}
+                        />
                     </View>
                 </View>
-                <View style={Styles.fieldWrapper}>
-                    <Text style={Styles.fieldLabel}>Initial Count*</Text>
-                    <TextInput
-                        style={[Styles.inputField, Styles.textInputField]}
-                        keyboardType="numeric"
-                        value={count}
-                        onChangeText={setCount}
-                    />
-                    {errors.count && <Text style={Styles.fieldError}>{errors.count}</Text>}
-                </View>
-                <View style={Styles.fieldWrapper}>
-                    <Text style={Styles.fieldLabel}>Destination Count*</Text>
-                    <TextInput
-                        style={[Styles.inputField, Styles.textInputField]}
-                        keyboardType="numeric"
-                        value={destinationCount}
-                        onChangeText={setDestinationCount}
-                    />
-                    {errors.destinationCount && <Text style={Styles.fieldError}>
-                        {errors.destinationCount}
-                    </Text>}
-                </View>
+                <TextField
+                    label="Initial Count"
+                    type="number"
+                    value={count}
+                    onChangeValue={setCount}
+                    required
+                    errorText={errors.count}
+                />
+                <TextField
+                    label="Destination Count"
+                    type="number"
+                    value={destinationCount}
+                    onChangeValue={setDestinationCount}
+                    required
+                    errorText={errors.destinationCount}
+                />
                 <View style={Styles.fieldWrapper}>
                     <Text style={Styles.fieldLabel}>Start Date*</Text>
                     <TouchableOpacity

@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
   submitButton: {
     alignItems: 'center',
     backgroundColor: Colors.accentColor,
+    elevation: 4,
     justifyContent: 'center',
     padding: 10,
     shadowColor: Colors.black,

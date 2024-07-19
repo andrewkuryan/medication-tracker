@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 import Colors from '@components/Colors';
 
@@ -11,11 +11,18 @@ const styles = StyleSheet.create({
     rowGap: 10,
   },
   inputField: {
-    borderColor: Colors.primaryColor,
     borderRadius: 12,
     borderWidth: 2,
     fontSize: 18,
-    padding: 12,
+    ...Platform.select({
+      ios: {
+        padding: 12,
+      },
+      android: {
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+      },
+    }),
   },
   loginForm: {
     paddingHorizontal: 40,
@@ -29,6 +36,7 @@ const styles = StyleSheet.create({
   submitButton: {
     alignItems: 'center',
     backgroundColor: Colors.accentColor,
+    elevation: 4,
     justifyContent: 'center',
     marginTop: 20,
     padding: 10,

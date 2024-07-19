@@ -8,6 +8,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accentColor,
     borderRadius: 30,
     bottom: 35,
+    elevation: 4,
     height: 60,
     justifyContent: 'center',
     position: 'absolute',

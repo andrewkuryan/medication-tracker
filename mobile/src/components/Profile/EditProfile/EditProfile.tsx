@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import {
-  SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View,
+  SafeAreaView, ScrollView, Text, TouchableOpacity, View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import DatePicker from 'react-native-date-picker';
@@ -14,6 +14,7 @@ import usePrevious from '@components/hooks/usePrevious';
 import { isDefinedObject, parser } from '@components/form/Parser';
 // eslint-disable-next-line import/no-cycle
 import { ProfileScreenProps } from '@components/Router';
+import TextField from '@components/TextField/TextField';
 import RadioButton from './RadioButton/RadioButton';
 
 import Styles from './EditProfile.styles';
@@ -116,12 +117,7 @@ const EditProfile: FunctionComponent<ProfileScreenProps<'EditProfile'>> = ({ nav
                                 onSelect={handleSelectGender}
                             />
                         </View>
-                        {genderKind === 'other' && <TextInput
-                            style={[Styles.inputField, Styles.textInputField]}
-                            value={gender}
-                            onChangeText={setGender}
-                            autoCapitalize="none"
-                        />}
+                        {genderKind === 'other' && <TextField value={gender} onChangeValue={setGender} />}
                     </View>
                     <View style={Styles.fieldWrapper}>
                         <Text style={Styles.fieldLabel}>Birth Date</Text>

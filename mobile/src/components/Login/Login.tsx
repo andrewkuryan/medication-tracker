@@ -1,11 +1,12 @@
 import React, { FunctionComponent, useState } from 'react';
 import {
-  SafeAreaView, Text, TextInput, TouchableOpacity, View,
+  SafeAreaView, Text, TouchableOpacity, View,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import { AppDispatch } from '@store/ReduxStore';
 import { login, register } from '@store/user/reducer';
+import TextField from '@components/TextField/TextField';
 
 import Styles from './Login.styles';
 
@@ -20,27 +21,25 @@ const LoginFields: FunctionComponent<LoginFieldsProps> = ({
   email, password, setEmail, setPassword,
 }) => (
     <>
-        <View style={Styles.fieldWrapper}>
-            <Text style={Styles.fieldLabel}>Email</Text>
-            <TextInput
-                style={Styles.inputField}
-                onChangeText={setEmail}
-                value={email}
-                placeholder="example@domain.com"
-                autoCapitalize="none"
-            />
-        </View>
-        <View style={Styles.fieldWrapper}>
-            <Text style={Styles.fieldLabel}>Password</Text>
-            <TextInput
-                style={Styles.inputField}
-                onChangeText={setPassword}
-                value={password}
-                placeholder="••••••••"
-                autoCapitalize="none"
-                secureTextEntry={true}
-            />
-        </View>
+        <TextField
+            style={Styles.fieldWrapper}
+            labelStyle={Styles.fieldLabel}
+            inputStyle={Styles.inputField}
+            label="Email"
+            value={email}
+            placeholder="example@domain.com"
+            onChangeValue={setEmail}
+        />
+        <TextField
+            style={Styles.fieldWrapper}
+            labelStyle={Styles.fieldLabel}
+            inputStyle={Styles.inputField}
+            label="Password"
+            value={password}
+            type="password"
+            placeholder="••••••••"
+            onChangeValue={setPassword}
+        />
     </>
 );
 
